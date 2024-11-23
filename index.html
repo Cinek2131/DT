@@ -5,9 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dziennik Tradera</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-gray-100 p-4">
     <div class="max-w-4xl mx-auto">
+        <!-- Sekcja statystyk -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h2 class="text-2xl font-bold mb-4">Statystyki</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="p-4 border rounded">
+                    <div class="text-gray-600">Liczba tradów</div>
+                    <div id="totalTrades" class="text-2xl font-bold">0</div>
+                </div>
+                <div class="p-4 border rounded">
+                    <div class="text-gray-600">Win Rate</div>
+                    <div id="winRate" class="text-2xl font-bold">0%</div>
+                </div>
+                <div class="p-4 border rounded">
+                    <div class="text-gray-600">Całkowity zysk</div>
+                    <div id="totalProfit" class="text-2xl font-bold">0</div>
+                </div>
+                <div class="p-4 border rounded">
+                    <div class="text-gray-600">Średni zysk</div>
+                    <div id="avgProfit" class="text-2xl font-bold">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Wykres -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h2 class="text-2xl font-bold mb-4">Wykres wyników</h2>
+            <canvas id="profitChart"></canvas>
+        </div>
+
+        <!-- Formularz dodawania trade'a -->
         <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
             <h2 class="text-2xl font-bold mb-4">Dodaj nowy trade</h2>
             <form id="tradeForm" class="space-y-4">
@@ -32,7 +63,8 @@
                     <div>
                         <label class="block mb-1">Setup</label>
                         <input type="text" name="setup" 
-                               class="w-full p-2 border rounded">
+                               class="w-full p-2 border rounded"
+                               placeholder="np. ICT + FVG">
                     </div>
                     <div>
                         <label class="block mb-1">Cena wejścia</label>
@@ -51,8 +83,11 @@
                     </div>
                     <div>
                         <label class="block mb-1">Wynik</label>
-                        <input type="text" name="result" placeholder="Win/Loss" 
-                               class="w-full p-2 border rounded">
+                        <select name="result" class="w-full p-2 border rounded">
+                            <option value="win">Win</option>
+                            <option value="loss">Loss</option>
+                            <option value="be">Break Even</option>
+                        </select>
                     </div>
                 </div>
                 <div>
@@ -67,6 +102,7 @@
             </form>
         </div>
 
+        <!-- Tabela historii -->
         <div class="bg-white rounded-lg shadow-lg p-6">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-2xl font-bold">Historia tradów</h2>
@@ -96,9 +132,158 @@
     </div>
 
     <script>
-        let trades = JSON.parse(localStorage.getItem('trades') || '[]');
+        // Konfiguracja GitHub
+        const GITHUB_TOKEN = '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'; // Wklej tutaj swój token
+        const REPO_OWNER = 'Cinek2131';
+        const REPO_NAME = 'DT';
+        const FILE_PATH = 'trades.json';
 
-        function addTrade(event) {
+        let trades = [];
+        let chart = null;
+
+        // Funkcje GitHub
+        async function saveToGithub(trades) {
+            try {
+                let sha = '';
+                try {
+                    const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
+                        headers: {
+                            'Authorization': `token ${GITHUB_TOKEN}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    });
+                    const data = await response.json();
+                    if (!response.ok) throw new Error('File not found');
+                    sha = data.sha;
+                } catch (e) {
+                    console.log('File does not exist yet');
+                }
+
+                const content = Buffer.from(JSON.stringify(trades, null, 2)).toString('base64');
+
+                const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${GITHUB_TOKEN}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: 'Update trades data',
+                        content: content,
+                        sha: sha || undefined
+                    })
+                });
+
+                if (!response.ok) throw new Error('Failed to save');
+                console.log('Saved to GitHub successfully');
+            } catch (error) {
+                console.error('Error saving to GitHub:', error);
+                alert('Błąd podczas zapisywania danych. Spróbuj ponownie.');
+            }
+        }
+
+        async function loadFromGithub() {
+            try {
+                const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
+                    headers: {
+                        'Authorization': `token ${GITHUB_TOKEN}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+                
+                if (!response.ok) return [];
+                
+                const data = await response.json();
+                const content = atob(data.content);
+                return JSON.parse(content);
+            } catch (error) {
+                console.error('Error loading from GitHub:', error);
+                return [];
+            }
+        }
+
+        // Funkcje statystyk
+        function updateStats() {
+            const stats = calculateStats(trades);
+            document.getElementById('totalTrades').textContent = stats.totalTrades;
+            document.getElementById('winRate').textContent = `${stats.winRate}%`;
+            document.getElementById('totalProfit').textContent = stats.totalProfit;
+            document.getElementById('avgProfit').textContent = stats.avgProfit;
+            updateChart(trades);
+        }
+
+        function calculateStats(trades) {
+            const stats = {
+                totalTrades: trades.length,
+                winningTrades: 0,
+                losingTrades: 0,
+                totalProfit: 0,
+                avgProfit: 0,
+                winRate: 0
+            };
+
+            trades.forEach(trade => {
+                const profit = parseFloat(trade.profit);
+                stats.totalProfit += profit;
+                
+                if (profit > 0) stats.winningTrades++;
+                else if (profit < 0) stats.losingTrades++;
+            });
+
+            stats.winRate = stats.totalTrades ? 
+                ((stats.winningTrades / stats.totalTrades) * 100).toFixed(2) : 0;
+            stats.totalProfit = stats.totalProfit.toFixed(2);
+            stats.avgProfit = stats.totalTrades ? 
+                (stats.totalProfit / stats.totalTrades).toFixed(2) : 0;
+
+            return stats;
+        }
+
+        // Funkcje wykresu
+        function updateChart(trades) {
+            const ctx = document.getElementById('profitChart').getContext('2d');
+            
+            const cumulativeProfit = trades.reduce((acc, trade) => {
+                const lastProfit = acc.length > 0 ? acc[acc.length - 1] : 0;
+                acc.push(lastProfit + parseFloat(trade.profit));
+                return acc;
+            }, []);
+
+            if (chart) {
+                chart.destroy();
+            }
+
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: trades.map((_, index) => `Trade ${index + 1}`),
+                    datasets: [{
+                        label: 'Skumulowany zysk',
+                        data: cumulativeProfit,
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Krzywa kapitału'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Obsługa formularza
+        async function addTrade(event) {
             event.preventDefault();
             const formData = new FormData(event.target);
             const trade = Object.fromEntries(formData.entries());
@@ -109,14 +294,17 @@
             
             trade.profit = profit.toFixed(2);
             trade.id = Date.now();
+            trade.timestamp = new Date().toISOString();
 
             trades.push(trade);
-            localStorage.setItem('trades', JSON.stringify(trades));
+            await saveToGithub(trades);
             
             renderTrades();
+            updateStats();
             event.target.reset();
         }
 
+        // Renderowanie tabeli
         function renderTrades() {
             const tbody = document.getElementById('tradesBody');
             tbody.innerHTML = trades.map(trade => `
@@ -135,6 +323,7 @@
             `).join('');
         }
 
+        // Export do CSV
         function exportToCSV() {
             const headers = ['Data', 'Para', 'Kierunek', 'Wejście', 'Wyjście', 
                            'Wolumen', 'Profit', 'Setup', 'Wynik', 'Notatki'];
@@ -164,8 +353,11 @@
             link.click();
         }
 
-        document.getElementById('tradeForm').addEventListener('submit', addTrade);
-        renderTrades();
-    </script>
-</body>
-</html>
+        // Inicjalizacja
+        window.addEventListener('DOMContentLoaded', async () => {
+            trades = await loadFromGithub();
+            renderTrades();
+            updateStats();
+        });
+
+        document.getElementById('tradeForm').addEventListener('submit', addTrade
