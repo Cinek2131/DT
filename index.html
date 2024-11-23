@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dziennik Tradera</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-4">
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h2 class="text-2xl font-bold mb-4">Dodaj nowy trade</h2>
+            <form id="tradeForm" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block mb-1">Data</label>
+                        <input type="datetime-local" name="date" required 
+                               class="w-full p-2 border rounded">
+                    </div>
+                    <div>
+                        <label class="block mb-1">Para walutowa</label>
+                        <input type="text" name="pair" required 
+                               class="w-full p-2 border rounded">
+                    </div>
+                    <div>
+                        <label class="block mb-1">Kierunek</label>
+                        <select name="direction" class="w-full p-2 border rounded">
+                            <option value="long">Long</option>
+                            <option value="short">Short</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block mb-1">Setup</label>
+                        <input type="text" name="setup" 
+                               class="w-full p-2 border rounded">
+                    </div>
+                    <div>
+                        <label class="block mb-1">Cena wejścia</label>
+                        <input type="number" step="0.00001" name="entry" required 
+                               class="w-full p-2 border rounded">
+                    </div>
+                    <div>
+                        <label class="block mb-1">Cena wyjścia</label>
+                        <input type="number" step="0.00001" name="exit" required 
+                               class="w-full p-2 border rounded">
+                    </div>
+                    <div>
+                        <label class="block mb-1">Wolumen</label>
+                        <input type="number" step="0.01" name="volume" required 
+                               class="w-full p-2 border rounded">
+                    </div>
+                    <div>
+                        <label class="block mb-1">Wynik</label>
+                        <input type="text" name="result" placeholder="Win/Loss" 
+                               class="w-full p-2 border rounded">
+                    </div>
+                </div>
+                <div>
+                    <label class="block mb-1">Notatki</label>
+                    <textarea name="notes" rows="3" 
+                              class="w-full p-2 border rounded"></textarea>
+                </div>
+                <button type="submit" 
+                        class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
+                    Dodaj trade
+                </button>
+            </form>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold">Historia tradów</h2>
+                <button onclick="exportToCSV()" 
+                        class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                    Eksportuj do CSV
+                </button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full" id="tradesTable">
+                    <thead>
+                        <tr class="border-b">
+                            <th class="p-2 text-left">Data</th>
+                            <th class="p-2 text-left">Para</th>
+                            <th class="p-2 text-left">Kierunek</th>
+                            <th class="p-2 text-right">Entry</th>
+                            <th class="p-2 text-right">Exit</th>
+                            <th class="p-2 text-right">Wolumen</th>
+                            <th class="p-2 text-right">Profit</th>
+                            <th class="p-2 text-center">Wynik</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tradesBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let trades = JSON.parse(localStorage.getItem('trades') || '[]');
+
+        function addTrade(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const trade = Object.fromEntries(formData.entries());
+            
+            const profit = (parseFloat(trade.exit) - parseFloat(trade.entry)) * 
+                          (trade.direction === 'long' ? 1 : -1) * 
+                          parseFloat(trade.volume);
+            
+            trade.profit = profit.toFixed(2);
+            trade.id = Date.now();
+
+            trades.push(trade);
+            localStorage.setItem('trades', JSON.stringify(trades));
+            
+            renderTrades();
+            event.target.reset();
+        }
+
+        function renderTrades() {
+            const tbody = document.getElementById('tradesBody');
+            tbody.innerHTML = trades.map(trade => `
+                <tr class="border-b">
+                    <td class="p-2">${new Date(trade.date).toLocaleString()}</td>
+                    <td class="p-2">${trade.pair}</td>
+                    <td class="p-2">${trade.direction}</td>
+                    <td class="p-2 text-right">${trade.entry}</td>
+                    <td class="p-2 text-right">${trade.exit}</td>
+                    <td class="p-2 text-right">${trade.volume}</td>
+                    <td class="p-2 text-right ${parseFloat(trade.profit) >= 0 ? 'text-green-600' : 'text-red-600'}">
+                        ${trade.profit}
+                    </td>
+                    <td class="p-2 text-center">${trade.result}</td>
+                </tr>
+            `).join('');
+        }
+
+        function exportToCSV() {
+            const headers = ['Data', 'Para', 'Kierunek', 'Wejście', 'Wyjście', 
+                           'Wolumen', 'Profit', 'Setup', 'Wynik', 'Notatki'];
+            
+            const data = trades.map(trade => [
+                trade.date,
+                trade.pair,
+                trade.direction,
+                trade.entry,
+                trade.exit,
+                trade.volume,
+                trade.profit,
+                trade.setup,
+                trade.result,
+                trade.notes
+            ]);
+
+            const csvContent = [
+                headers.join(','),
+                ...data.map(row => row.join(','))
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `trading_journal_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+        }
+
+        document.getElementById('tradeForm').addEventListener('submit', addTrade);
+        renderTrades();
+    </script>
+</body>
+</html>
