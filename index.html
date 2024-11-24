@@ -278,7 +278,8 @@ async function importBrokerData(event) {
                 // Sprawdzamy czy trade jest zamknięty
                 if (data.Status !== 'CLOSED') return null;
 
-                const profit = parseFloat(data['Rpl Converted'] || '0');
+                const profit = parseFloat(data['Amount'] || '0');
+                //const profit = parseFloat(data['Rpl Converted'] || '0');
                 const timestamp = new Date(data.Timestamp);
                 
                 if (isNaN(profit) || !timestamp.getTime()) return null;
