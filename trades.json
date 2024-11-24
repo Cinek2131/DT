@@ -1,0 +1,50 @@
+[
+  {
+    "date": "2024-11-22T18:04:48.000Z",
+    "pair": "US100",
+    "direction": "long",
+    "entry": 20760.7,
+    "exit": 20739.1,
+    "volume": 0.4,
+    "profit": "-6.82",
+    "result": "loss",
+    "setup": "Imported",
+    "notes": "Trade ID: 00384627-0055-311e-0000-0000822be429, Order ID: 00384627-0055-311e-0000-0000822be480"
+  },
+  {
+    "date": "2024-11-22T18:05:31.000Z",
+    "pair": "US100",
+    "direction": "long",
+    "entry": 20757.7,
+    "exit": 20730.7,
+    "volume": 0.2,
+    "profit": "4.83",
+    "result": "win",
+    "setup": "Imported",
+    "notes": "Trade ID: 00384627-0055-311e-0000-0000822be433, Order ID: 00384627-0055-311e-0000-0000822be4a8"
+  },
+  {
+    "date": "2024-11-22T18:10:50.000Z",
+    "pair": "US100",
+    "direction": "long",
+    "entry": 20748.2,
+    "exit": 20730.7,
+    "volume": 0.1,
+    "profit": "6.37",
+    "result": "win",
+    "setup": "Imported",
+    "notes": "Trade ID: 00384627-0055-311e-0000-0000822be433, Order ID: 00384627-0055-311e-0000-0000822be4ff"
+  },
+  {
+    "date": "2024-11-22T18:15:55.000Z",
+    "pair": "US100",
+    "direction": "long",
+    "entry": 20730.7,
+    "exit": 20730.7,
+    "volume": 0.1,
+    "profit": "13.65",
+    "result": "win",
+    "setup": "Imported",
+    "notes": "Trade ID: 00384627-0055-311e-0000-0000822be433, Order ID: 00384627-0055-311e-0000-0000822be5cb"
+  }
+]
