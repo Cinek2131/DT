@@ -67,6 +67,161 @@
             }
         }
 
+/ Dodaj te funkcje do sekcji skryptu w stats.html
+
+// Analiza godzinowa
+function updateHourlyChart(trades) {
+    const ctx = document.getElementById('dailyChart').getContext('2d');
+    const hourlyStats = analyzeHourlyData(trades);
+    
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: Array.from({length: 24}, (_, i) => `${i.toString().padStart(2, '0')}:00`),
+            datasets: [{
+                label: 'Zysk',
+                data: hourlyStats.map(hour => hour.profit),
+                backgroundColor: hourlyStats.map(hour => hour.profit >= 0 ? 
+                    'rgba(75, 192, 192, 0.6)' : 'rgba(255, 99, 132, 0.6)'),
+                borderColor: hourlyStats.map(hour => hour.profit >= 0 ? 
+                    'rgb(75, 192, 192)' : 'rgb(255, 99, 132)'),
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        afterLabel: function(context) {
+                            const hourData = hourlyStats[context.dataIndex];
+                            return [
+                                `Liczba tradów: ${hourData.count}`,
+                                `Win Rate: ${hourData.winRate}%`,
+                                `Średni zysk: ${hourData.avgProfit}`
+                            ];
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function analyzeHourlyData(trades) {
+    const hours = Array.from({length: 24}, () => ({
+        profit: 0,
+        count: 0,
+        wins: 0,
+        avgProfit: 0,
+        winRate: 0
+    }));
+
+    trades.forEach(trade => {
+        const date = new Date(trade.date);
+        const hour = date.getHours();
+        const profit = parseFloat(trade.profit);
+
+        hours[hour].profit += profit;
+        hours[hour].count++;
+        if (profit > 0) hours[hour].wins++;
+    });
+
+    // Oblicz statystyki dla każdej godziny
+    return hours.map(hour => ({
+        ...hour,
+        avgProfit: hour.count > 0 ? (hour.profit / hour.count).toFixed(2) : 0,
+        winRate: hour.count > 0 ? ((hour.wins / hour.count) * 100).toFixed(1) : 0
+    }));
+}
+
+// Analiza miesięczna
+function updateMonthlyChart(trades) {
+    const ctx = document.getElementById('monthlyChart').getContext('2d');
+    const monthlyStats = analyzeMonthlyData(trades);
+    
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: [
+                'Styczeń', 'Luty', 'Marzec', 'Kwiecień', 'Maj', 'Czerwiec',
+                'Lipiec', 'Sierpień', 'Wrzesień', 'Październik', 'Listopad', 'Grudzień'
+            ],
+            datasets: [{
+                label: 'Zysk',
+                data: monthlyStats.map(month => month.profit),
+                backgroundColor: monthlyStats.map(month => month.profit >= 0 ? 
+                    'rgba(75, 192, 192, 0.6)' : 'rgba(255, 99, 132, 0.6)'),
+                borderColor: monthlyStats.map(month => month.profit >= 0 ? 
+                    'rgb(75, 192, 192)' : 'rgb(255, 99, 132)'),
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        afterLabel: function(context) {
+                            const monthData = monthlyStats[context.dataIndex];
+                            return [
+                                `Liczba tradów: ${monthData.count}`,
+                                `Win Rate: ${monthData.winRate}%`,
+                                `Średni zysk: ${monthData.avgProfit}`
+                            ];
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function analyzeMonthlyData(trades) {
+    const months = Array.from({length: 12}, () => ({
+        profit: 0,
+        count: 0,
+        wins: 0,
+        avgProfit: 0,
+        winRate: 0
+    }));
+
+    trades.forEach(trade => {
+        const date = new Date(trade.date);
+        const month = date.getMonth();
+        const profit = parseFloat(trade.profit);
+
+        months[month].profit += profit;
+        months[month].count++;
+        if (profit > 0) months[month].wins++;
+    });
+
+    // Oblicz statystyki dla każdego miesiąca
+    return months.map(month => ({
+        ...month,
+        avgProfit: month.count > 0 ? (month.profit / month.count).toFixed(2) : 0,
+        winRate: month.count > 0 ? ((month.wins / month.count) * 100).toFixed(1) : 0
+    }));
+}
+
+// Zaktualizuj inicjalizację
+window.addEventListener('DOMContentLoaded', async () => {
+    trades = await loadFromGithub();
+    updateWeekdayChart(trades);
+    updateHourlyChart(trades);
+    updateMonthlyChart(trades);
+});
+        
         // Analiza dni tygodnia
         function updateWeekdayChart(trades) {
             const ctx = document.getElementById('weekdayChart').getContext('2d');
