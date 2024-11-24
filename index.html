@@ -247,64 +247,68 @@
         }
 
         // Import danych z brokera
-        async function importBrokerData(event) {
-            const file = event.target.files[0];
-            if (!file) return;
+async function importBrokerData(event) {
+    const file = event.target.files[0];
+    if (!file) return;
 
-            try {
-                const text = await file.text();
-                const rows = text.split('\n');
-                const headers = rows[0].split(',');
+    try {
+        const text = await file.text();
+        const rows = text.split('\n');
+        const headers = rows[0].split(',');
+        
+        const newTrades = rows.slice(1)
+            .filter(row => row.trim())
+            .map(row => {
+                // Dzielimy wiersz z uwzględnieniem wartości w cudzysłowach
+                const columns = row.split(',').map(col => col.replace(/"/g, '').trim());
+                if (columns.length < headers.length) return null;
+
+                const data = {};
+                headers.forEach((header, index) => {
+                    data[header.trim()] = columns[index];
+                });
+
+                // Sprawdzamy czy trade jest zamknięty
+                if (data.Status !== 'CLOSED') return null;
+
+                const profit = parseFloat(data['Rpl Converted'] || '0');
+                const timestamp = new Date(data.Timestamp);
                 
-                const newTrades = rows.slice(1)
-                    .filter(row => row.trim())
-                    .map(row => {
-                        const columns = row.split(',');
-                        if (columns.length < headers.length) return null;
+                if (isNaN(profit) || !timestamp.getTime()) return null;
 
-                        const data = {};
-                        headers.forEach((header, index) => {
-                            data[header.trim()] = columns[index]?.trim();
-                        });
+                return {
+                    date: timestamp.toISOString(),
+                    pair: data['Instrument Symbol'],
+                    direction: parseFloat(data.Quantity) > 0 ? 'long' : 'short',
+                    entry: parseFloat(data.Price),
+                    exit: parseFloat(data['Take Profit']) || parseFloat(data['Stop Loss']) || parseFloat(data.Price),
+                    volume: Math.abs(parseFloat(data.Quantity)),
+                    profit: profit.toFixed(2),
+                    result: profit > 0 ? 'win' : profit < 0 ? 'loss' : 'be',
+                    setup: 'Imported',
+                    notes: `Trade ID: ${data['Trade Id']}, Order ID: ${data['Order Id']}`
+                };
+            })
+            .filter(trade => trade !== null)
+            .sort((a, b) => new Date(a.date) - new Date(b.date));
 
-                        const profit = parseFloat(data['Rpl Converted'] || '0');
-                        const timestamp = new Date(data.Timestamp);
-                        
-                        if (isNaN(profit) || !timestamp.getTime()) return null;
+        trades = [...trades, ...newTrades];
+        await saveToGithub(trades);
+        
+        renderTrades();
+        updateStats();
+        
+        const summary = generateImportSummary(newTrades);
+        alert(`Import zakończony!\n\n${summary}`);
+        
+        event.target.value = '';
+        localStorage.setItem('tradingData', JSON.stringify(trades));
 
-                        return {
-                            date: timestamp.toISOString(),
-                            pair: data['Instrument Symbol'] || '',
-                            direction: parseFloat(data.Quantity) > 0 ? 'long' : 'short',
-                            entry: parseFloat(data.Price) || 0,
-                            exit: parseFloat(data.Price) || 0,
-                            volume: Math.abs(parseFloat(data.Quantity)) || 0,
-                            profit: profit.toFixed(2),
-                            result: profit > 0 ? 'win' : profit < 0 ? 'loss' : 'be',
-                            setup: 'Imported',
-                            notes: `Import ID: ${data['Trade Id']}`
-                        };
-                    })
-                    .filter(trade => trade !== null)
-                    .sort((a, b) => new Date(a.date) - new Date(b.date));
-
-                trades = [...trades, ...newTrades];
-                await saveToGithub(trades);
-                
-                renderTrades();
-                updateStats();
-                
-                const summary = generateImportSummary(newTrades);
-                alert(`Import zakończony!\n\n${summary}`);
-                
-                event.target.value = '';
-                localStorage.setItem('tradingData', JSON.stringify(trades));
-
-            } catch (error) {
-                console.error('Błąd podczas importu:', error);
-                alert('Wystąpił błąd podczas importu. Sprawdź format pliku.');
-            }
-        }
+    } catch (error) {
+        console.error('Błąd podczas importu:', error);
+        alert('Wystąpił błąd podczas importu. Sprawdź format pliku.');
+    }
+}
 
         function generateImportSummary(newTrades) {
             const total = newTrades.length;
