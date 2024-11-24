@@ -43,7 +43,14 @@
 
     <script>
         // Konfiguracja GitHub
-        const GITHUB_TOKEN = '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'; // Wstaw tutaj swój token
+        // Zamień linijkę z GITHUB_TOKEN na:
+let GITHUB_TOKEN = localStorage.getItem('github_token');
+if (!GITHUB_TOKEN) {
+    GITHUB_TOKEN = prompt('Wprowadź swój GitHub Token:');
+    if (GITHUB_TOKEN) {
+        localStorage.setItem('github_token', GITHUB_TOKEN);
+    }
+}
         const REPO_OWNER = 'Cinek2131';
         const REPO_NAME = 'DT';
         const FILE_PATH = 'trades.json';
