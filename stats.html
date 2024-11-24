@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Statystyki Tradera</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" crossorigin="anonymous"></script>
+</head>
+<body class="bg-gray-100 p-2 md:p-4">
+    <div class="max-w-4xl mx-auto">
+        <!-- Panel nawigacyjny -->
+        <div class="bg-white rounded-lg shadow-lg p-3 md:p-6 mb-4 flex justify-between items-center">
+            <h1 class="text-2xl md:text-3xl font-bold">Szczegółowe Statystyki</h1>
+            <button onclick="window.location.href='index.html'" 
+                    class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                Powrót do Dziennika
+            </button>
+        </div>
+
+        <!-- Statystyki dzienne -->
+        <div class="bg-white rounded-lg shadow-lg p-3 md:p-6 mb-4">
+            <h2 class="text-xl md:text-2xl font-bold mb-3">Analiza Dzienna</h2>
+            <canvas id="dailyChart"></canvas>
+        </div>
+
+        <!-- Statystyki dni tygodnia -->
+        <div class="bg-white rounded-lg shadow-lg p-3 md:p-6 mb-4">
+            <h2 class="text-xl md:text-2xl font-bold mb-3">Analiza Dni Tygodnia</h2>
+            <canvas id="weekdayChart"></canvas>
+        </div>
+
+        <!-- Statystyki miesięczne -->
+        <div class="bg-white rounded-lg shadow-lg p-3 md:p-6 mb-4">
+            <h2 class="text-xl md:text-2xl font-bold mb-3">Analiza Miesięczna</h2>
+            <canvas id="monthlyChart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        // Konfiguracja GitHub (ta sama co w index.html)
+        const GITHUB_TOKEN = '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';
+        const REPO_OWNER = 'Cinek2131';
+        const REPO_NAME = 'DT';
+        const FILE_PATH = 'trades.json';
+        
+        let trades = [];
+
+        // Funkcja ładowania danych
+        async function loadFromGithub() {
+            try {
+                const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
+                    headers: {
+                        'Authorization': `token ${GITHUB_TOKEN}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+                
+                if (!response.ok) return [];
+                
+                const data = await response.json();
+                const content = atob(data.content);
+                return JSON.parse(content);
+            } catch (error) {
+                console.error('Error loading from GitHub:', error);
+                return [];
+            }
+        }
+
+        // Analiza dni tygodnia
+        function updateWeekdayChart(trades) {
+            const ctx = document.getElementById('weekdayChart').getContext('2d');
+            const daysStats = analyzeDayOfWeek(trades);
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(daysStats),
+                    datasets: [{
+                        label: 'Zysk',
+                        data: Object.values(daysStats).map(day => day.total),
+                        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                        borderColor: 'rgb(75, 192, 192)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function analyzeDayOfWeek(trades) {
+            const days = {
+                'Poniedziałek': { total: 0, count: 0 },
+                'Wtorek': { total: 0, count: 0 },
+                'Środa': { total: 0, count: 0 },
+                'Czwartek': { total: 0, count: 0 },
+                'Piątek': { total: 0, count: 0 }
+            };
+
+            trades.forEach(trade => {
+                const date = new Date(trade.date);
+                const dayName = ['Niedziela', 'Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek', 'Sobota'][date.getDay()];
+                
+                if (dayName in days) {
+                    days[dayName].total += parseFloat(trade.profit);
+                    days[dayName].count++;
+                }
+            });
+
+            return days;
+        }
+
+        // Inicjalizacja
+        window.addEventListener('DOMContentLoaded', async () => {
+            trades = await loadFromGithub();
+            updateWeekdayChart(trades);
+            // Dodamy później funkcje dla pozostałych wykresów
+        });
+    </script>
+</body>
+</html>
