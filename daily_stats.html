@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statystyki Dzienne</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-4">
+    <div class="max-w-4xl mx-auto">
+        <!-- Panel nawigacyjny -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-4 flex justify-between items-center">
+            <h1 class="text-3xl font-bold">Statystyki Dzienne</h1>
+            <button onclick="window.location.href='index.html'" 
+                    class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                Powrót do Dziennika
+            </button>
+        </div>
+
+        <!-- Dzisiejsze statystyki -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-4">
+            <h2 class="text-2xl font-bold mb-4">Dzisiaj</h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <!-- Te same statystyki co w index.html -->
+                <div class="p-4 border rounded">
+                    <div class="text-gray-600">Liczba tradów</div>
+                    <div id="todayTotalTrades" class="text-2xl font-bold">0</div>
+                </div>
+                <!-- ... pozostałe statystyki ... -->
+            </div>
+        </div>
+
+        <!-- Statystyki z poprzedniego dnia -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-2xl font-bold mb-4">Poprzedni dzień</h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <!-- Te same statystyki co wyżej -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tutaj ten sam kod co w index.html do obsługi GitHuba
+        let GITHUB_TOKEN = localStorage.getItem('github_token');
+        if (!GITHUB_TOKEN) {
+            GITHUB_TOKEN = prompt('Wprowadź swój GitHub Token:');
+            if (GITHUB_TOKEN) {
+                localStorage.setItem('github_token', GITHUB_TOKEN);
+            }
+        }
+        const REPO_OWNER = 'Cinek2131';
+        const REPO_NAME = 'DT';
+        const FILE_PATH = 'trades.json';
+
+        async function loadFromGithub() {
+            // ... (ten sam kod co w index.html)
+        }
+
+        function calculateDailyStats(trades, date) {
+            const dayToCheck = date.toDateString();
+            const dailyTrades = trades.filter(trade => 
+                new Date(trade.date).toDateString() === dayToCheck
+            );
+            // ... (reszta kodu z calculateDailyStats)
+        }
+
+        async function updateDailyStats() {
+            const trades = await loadFromGithub();
+            const today = new Date();
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+
+            const todayStats = calculateDailyStats(trades, today);
+            const yesterdayStats = calculateDailyStats(trades, yesterday);
+
+            // Aktualizacja statystyk na stronie
+            updateStatsDisplay('today', todayStats);
+            updateStatsDisplay('yesterday', yesterdayStats);
+        }
+
+        function updateStatsDisplay(prefix, stats) {
+            document.getElementById(`${prefix}TotalTrades`).textContent = stats.totalTrades;
+            // ... (aktualizacja pozostałych statystyk)
+        }
+
+        // Inicjalizacja
+        window.addEventListener('DOMContentLoaded', updateDailyStats);
+    </script>
+</body>
+</html>
