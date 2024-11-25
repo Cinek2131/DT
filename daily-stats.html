@@ -121,7 +121,8 @@ function calculateDailyStats(trades) {
     return stats;
 }
 
-function updateStats() {
+    // Funkcje statystyk i wykresów
+        function updateStats() {
     const stats = calculateStats(trades);
     const dailyStats = calculateDailyStats(trades);
     
@@ -135,10 +136,10 @@ function updateStats() {
     document.getElementById('dailyProfit').textContent = dailyStats.totalProfit;
     document.getElementById('dailyAvgProfit').textContent = dailyStats.avgProfit;
     document.getElementById('dailyTP').textContent = dailyStats.tp;
-    document.getElementById('dailySLBE').textContent = dailyStats.slbe;
+    document.getElementById('dailySL').textContent = dailyStats.sl;
+    document.getElementById('dailyBE').textContent = dailyStats.be;
     
     updateChart(trades);
-}
 
         async function updateDailyStats() {
             const trades = await loadFromGithub();
