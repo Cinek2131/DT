@@ -78,7 +78,8 @@
             // ... (ten sam kod co w index.html)
         }
 
-   function calculateDailyStats(trades) {
+// Przelicanie statystyk dziennych//
+function calculateDailyStats(trades) {
     const today = new Date().toDateString();
     const dailyTrades = trades.filter(trade => 
         new Date(trade.date).toDateString() === today
@@ -92,7 +93,8 @@
         avgProfit: 0,
         winRate: 0,
         tp: 0,
-        slbe: 0
+        sl: 0,
+        be: 0
     };
 
     dailyTrades.forEach(trade => {
@@ -104,9 +106,9 @@
             stats.tp++;
         } else if (profit < 0) {
             stats.losingTrades++;
-            stats.slbe++;
-        } else if (profit === 0 || profit > 0) {
-            stats.slbe++; // BE case
+            stats.sl++;
+        } else if (profit === 0) {
+            stats.be++;
         }
     });
 
