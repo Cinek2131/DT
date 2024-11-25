@@ -18,17 +18,35 @@
         </div>
 
         <!-- Dzisiejsze statystyki -->
-        <div class="bg-white rounded-lg shadow-lg p-6 mb-4">
-            <h2 class="text-2xl font-bold mb-4">Dzisiaj</h2>
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <!-- Te same statystyki co w index.html -->
-                <div class="p-4 border rounded">
-                    <div class="text-gray-600">Liczba tradów</div>
-                    <div id="todayTotalTrades" class="text-2xl font-bold">0</div>
-                </div>
-                <!-- ... pozostałe statystyki ... -->
-            </div>
+   <div class="bg-white rounded-lg shadow-lg p-3 md:p-6 mb-4">
+    <h2 class="text-xl md:text-2xl font-bold mb-3">Statystyki Dzienne</h2>
+    <div class="grid grid-cols-2 stats-grid gap-2 md:gap-4">
+        <div class="p-2 md:p-4 border rounded">
+            <div class="text-sm md:text-base text-gray-600">Liczba tradów</div>
+            <div id="dailyTotalTrades" class="text-lg md:text-2xl font-bold">0</div>
         </div>
+        <div class="p-2 md:p-4 border rounded">
+            <div class="text-sm md:text-base text-gray-600">Win Rate</div>
+            <div id="dailyWinRate" class="text-lg md:text-2xl font-bold">0%</div>
+        </div>
+        <div class="p-2 md:p-4 border rounded">
+            <div class="text-sm md:text-base text-gray-600">Zysk dzienny</div>
+            <div id="dailyProfit" class="text-lg md:text-2xl font-bold">0</div>
+        </div>
+        <div class="p-2 md:p-4 border rounded">
+            <div class="text-sm md:text-base text-gray-600">Średni zysk</div>
+            <div id="dailyAvgProfit" class="text-lg md:text-2xl font-bold">0</div>
+        </div>
+        <div class="p-2 md:p-4 border rounded">
+            <div class="text-sm md:text-base text-gray-600">Liczba TP</div>
+            <div id="dailyTP" class="text-lg md:text-2xl font-bold">0</div>
+        </div>
+        <div class="p-2 md:p-4 border rounded">
+            <div class="text-sm md:text-base text-gray-600">Liczba SL/BE</div>
+            <div id="dailySLBE" class="text-lg md:text-2xl font-bold">0</div>
+        </div>
+    </div>
+</div>
 
         <!-- Statystyki z poprzedniego dnia -->
         <div class="bg-white rounded-lg shadow-lg p-6">
@@ -56,13 +74,65 @@
             // ... (ten sam kod co w index.html)
         }
 
-        function calculateDailyStats(trades, date) {
-            const dayToCheck = date.toDateString();
-            const dailyTrades = trades.filter(trade => 
-                new Date(trade.date).toDateString() === dayToCheck
-            );
-            // ... (reszta kodu z calculateDailyStats)
+   function calculateDailyStats(trades) {
+    const today = new Date().toDateString();
+    const dailyTrades = trades.filter(trade => 
+        new Date(trade.date).toDateString() === today
+    );
+
+    const stats = {
+        totalTrades: dailyTrades.length,
+        winningTrades: 0,
+        losingTrades: 0,
+        totalProfit: 0,
+        avgProfit: 0,
+        winRate: 0,
+        tp: 0,
+        slbe: 0
+    };
+
+    dailyTrades.forEach(trade => {
+        const profit = parseFloat(trade.profit);
+        stats.totalProfit += profit;
+        
+        if (profit > 0) {
+            stats.winningTrades++;
+            stats.tp++;
+        } else if (profit < 0) {
+            stats.losingTrades++;
+            stats.slbe++;
+        } else if (profit === 0 || profit > 0) {
+            stats.slbe++; // BE case
         }
+    });
+
+    stats.winRate = stats.totalTrades ? 
+        ((stats.winningTrades / stats.totalTrades) * 100).toFixed(2) : 0;
+    stats.totalProfit = stats.totalProfit.toFixed(2);
+    stats.avgProfit = stats.totalTrades ? 
+        (stats.totalProfit / stats.totalTrades).toFixed(2) : 0;
+
+    return stats;
+}
+
+function updateStats() {
+    const stats = calculateStats(trades);
+    const dailyStats = calculateDailyStats(trades);
+    
+    document.getElementById('totalTrades').textContent = stats.totalTrades;
+    document.getElementById('winRate').textContent = `${stats.winRate}%`;
+    document.getElementById('totalProfit').textContent = stats.totalProfit;
+    document.getElementById('avgProfit').textContent = stats.avgProfit;
+    
+    document.getElementById('dailyTotalTrades').textContent = dailyStats.totalTrades;
+    document.getElementById('dailyWinRate').textContent = `${dailyStats.winRate}%`;
+    document.getElementById('dailyProfit').textContent = dailyStats.totalProfit;
+    document.getElementById('dailyAvgProfit').textContent = dailyStats.avgProfit;
+    document.getElementById('dailyTP').textContent = dailyStats.tp;
+    document.getElementById('dailySLBE').textContent = dailyStats.slbe;
+    
+    updateChart(trades);
+}
 
         async function updateDailyStats() {
             const trades = await loadFromGithub();
