@@ -73,6 +73,7 @@
                 </div>
             </div>
         </div>
+        
 <!-- Dzienne statystyki -->
 <div class="bg-white rounded-lg shadow-lg p-3 md:p-6 mb-4">
     <h2 class="text-xl md:text-2xl font-bold mb-3">Statystyki Dzienne</h2>
@@ -97,9 +98,13 @@
             <div class="text-sm md:text-base text-gray-600">Liczba TP</div>
             <div id="dailyTP" class="text-lg md:text-2xl font-bold">0</div>
         </div>
-        <div class="p-2 md:p-4 border rounded">
-            <div class="text-sm md:text-base text-gray-600">Liczba SL/BE</div>
-            <div id="dailySLBE" class="text-lg md:text-2xl font-bold">0</div>
+       <div class="p-2 md:p-4 border rounded">
+           <div class="text-sm md:text-base text-gray-600">Liczba SL</div>
+           <div id="dailySL" class="text-lg md:text-2xl font-bold">0</div>
+       </div>
+       <div class="p-2 md:p-4 border rounded">
+           <div class="text-sm md:text-base text-gray-600">Liczba BE</div>
+           <div id="dailyBE" class="text-lg md:text-2xl font-bold">0</div>
         </div>
     </div>
 </div>
@@ -387,7 +392,8 @@ function calculateDailyStats(trades) {
         avgProfit: 0,
         winRate: 0,
         tp: 0,
-        slbe: 0
+        sl: 0,
+        be: 0
     };
 
     dailyTrades.forEach(trade => {
@@ -399,9 +405,9 @@ function calculateDailyStats(trades) {
             stats.tp++;
         } else if (profit < 0) {
             stats.losingTrades++;
-            stats.slbe++;
-        } else if (profit === 0 || profit > 0) {
-            stats.slbe++; // BE case
+            stats.sl++;
+        } else if (profit === 0) {
+            stats.be++;
         }
     });
 
@@ -429,7 +435,8 @@ function calculateDailyStats(trades) {
     document.getElementById('dailyProfit').textContent = dailyStats.totalProfit;
     document.getElementById('dailyAvgProfit').textContent = dailyStats.avgProfit;
     document.getElementById('dailyTP').textContent = dailyStats.tp;
-    document.getElementById('dailySLBE').textContent = dailyStats.slbe;
+    document.getElementById('dailySL').textContent = dailyStats.sl;
+    document.getElementById('dailyBE').textContent = dailyStats.be;
     
     updateChart(trades);
 }
