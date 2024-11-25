@@ -87,7 +87,21 @@
            </div>
        </div>
    </div>
-
+   
+<!-- Matryca handlowa -->
+<div class="bg-white rounded-lg shadow-lg p-3 md:p-6 mb-4">
+    <h2 class="text-xl md:text-2xl font-bold mb-3">Matryca Handlowa</h2>
+    <div id="tradeMatrix" class="grid grid-cols-7 gap-1">
+        <!-- Dni tygodnia -->
+        <div class="text-center text-sm font-bold">Pon</div>
+        <div class="text-center text-sm font-bold">Wt</div>
+        <div class="text-center text-sm font-bold">Śr</div>
+        <div class="text-center text-sm font-bold">Czw</div>
+        <div class="text-center text-sm font-bold">Pt</div>
+        <div class="text-center text-sm font-bold">Sob</div>
+        <div class="text-center text-sm font-bold">Nie</div>
+    </div>
+</div>
    <script>
        let GITHUB_TOKEN = localStorage.getItem('github_token');
        if (!GITHUB_TOKEN) {
@@ -194,6 +208,57 @@
                document.getElementById('lastDaySL').textContent = lastDayStats.sl;
                document.getElementById('lastDayBE').textContent = lastDayStats.be;
            }
+
+          //Matryca dni//
+         function createTradeMatrix(trades) {
+    const matrix = document.getElementById('tradeMatrix');
+    const today = new Date();
+    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+    const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    
+    // Kalendarz w formie 5x7 lub 6x7
+    const weeksNeeded = Math.ceil((firstDay.getDay() + daysInMonth) / 7);
+    const totalCells = weeksNeeded * 7;
+    
+    let currentDate = 1;
+    let isMonthStarted = false;
+    
+    for (let i = 0; i < totalCells; i++) {
+        const daySquare = document.createElement('div');
+        daySquare.className = 'h-10 rounded relative';
+        
+        if (!isMonthStarted && i % 7 === firstDay.getDay()) {
+            isMonthStarted = true;
+        }
+        
+        if (isMonthStarted && currentDate <= daysInMonth) {
+            const date = new Date(today.getFullYear(), today.getMonth(), currentDate);
+            const dayTrades = trades.filter(trade => 
+                new Date(trade.date).toDateString() === date.toDateString()
+            );
+            
+            if (dayTrades.length > 0) {
+                const profit = dayTrades.reduce((sum, trade) => sum + parseFloat(trade.profit), 0);
+                daySquare.className += profit > 0 ? ' bg-green-500' : profit < 0 ? ' bg-red-500' : ' bg-gray-300';
+                daySquare.title = `${currentDate}: ${dayTrades.length} tradów, Wynik: ${profit.toFixed(2)}`;
+            } else {
+                daySquare.className += ' bg-gray-100';
+            }
+            
+            const dateLabel = document.createElement('span');
+            dateLabel.className = 'absolute top-1 left-1 text-xs';
+            dateLabel.textContent = currentDate;
+            daySquare.appendChild(dateLabel);
+            
+            currentDate++;
+        } else {
+            daySquare.className += ' bg-gray-50';
+        }
+        
+        matrix.appendChild(daySquare);
+    }
+} 
        });
    </script>
 </body>
