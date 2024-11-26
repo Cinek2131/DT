@@ -145,18 +145,20 @@
             </div>
             <div class="table-responsive">
                 <table class="w-full" id="tradesTable">
-                    <thead>
-                        <tr class="border-b">
-                            <th class="p-2 text-left">Data</th>
-                            <th class="p-2 text-left">Para</th>
-                            <th class="p-2 text-left">Kierunek</th>
-                            <th class="p-2 text-right">Entry</th>
-                            <th class="p-2 text-right">Exit</th>
-                            <th class="p-2 text-right">Wolumen</th>
-                            <th class="p-2 text-right">Profit</th>
-                            <th class="p-2 text-center">Wynik</th>
-                        </tr>
-                    </thead>
+                   <thead>
+    <tr class="border-b">
+        <th class="p-2 text-left">Data</th>
+        <th class="p-2 text-left">Para</th>
+        <th class="p-2 text-left">Kierunek</th>
+        <th class="p-2 text-right">Entry</th>
+        <th class="p-2 text-right">TP</th>
+        <th class="p-2 text-right">SL</th>
+        <th class="p-2 text-right">Exit</th>
+        <th class="p-2 text-right">Wolumen</th>
+        <th class="p-2 text-right">Profit</th>
+        <th class="p-2 text-center">Wynik</th>
+    </tr>
+</thead>
                     <tbody id="tradesBody"></tbody>
                 </table>
             </div>
@@ -334,7 +336,6 @@ async function importBrokerData(event) {
                 // Sprawdzamy czy trade jest zamknięty
                 if (data.Status !== 'CLOSED') return null;
 
-               
                 const profit = parseFloat(data['Rpl Converted'] || '0');
                 const timestamp = new Date(data.Timestamp);
                 
@@ -345,7 +346,9 @@ async function importBrokerData(event) {
                     pair: data['Instrument Symbol'],
                     direction: parseFloat(data.Quantity) > 0 ? 'long' : 'short',
                     entry: parseFloat(data.Price),
-                    exit: parseFloat(data['Take Profit']) || parseFloat(data['Stop Loss']) || parseFloat(data.Price),
+                    exit: parseFloat(data.Price),
+                    takeProfit: parseFloat(data['Take Profit']) || null,
+                    stopLoss: parseFloat(data['Stop Loss']) || null,
                     volume: Math.abs(parseFloat(data.Quantity)),
                     profit: profit.toFixed(2),
                     result: profit > 0 ? 'win' : profit < 0 ? 'loss' : 'be',
@@ -540,7 +543,7 @@ function calculateDailyStats(trades) {
         }
 
         // Renderowanie tabeli
-      function renderTrades() {
+  function renderTrades() {
     const tbody = document.getElementById('tradesBody');
     const sortedTrades = [...trades].sort((a, b) => new Date(b.date) - new Date(a.date));
     
@@ -550,6 +553,8 @@ function calculateDailyStats(trades) {
             <td class="p-2">${trade.pair}</td>
             <td class="p-2">${trade.direction}</td>
             <td class="p-2 text-right">${trade.entry}</td>
+            <td class="p-2 text-right">${trade.takeProfit ? trade.takeProfit : '-'}</td>
+            <td class="p-2 text-right">${trade.stopLoss ? trade.stopLoss : '-'}</td>
             <td class="p-2 text-right">${trade.exit}</td>
             <td class="p-2 text-right">${trade.volume}</td>
             <td class="p-2 text-right ${parseFloat(trade.profit) >= 0 ? 'text-green-600' : 'text-red-600'}">
