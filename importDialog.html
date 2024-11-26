@@ -50,12 +50,15 @@
            </div>
 
            <!-- Import pliku -->
-           <div class="mt-4">
-               <input type="file" id="csvFileInput" accept=".csv" class="hidden">
-               <button id="importFileBtn" class="bg-blue-500 text-white px-4 py-2 rounded w-full">
-                   Importuj plik CSV
-               </button>
-           </div>
+          <div class="flex gap-2 mt-4">
+    <button id="saveConfigBtn" class="bg-green-500 text-white px-4 py-2 rounded">
+        Zapisz konfigurację
+    </button>
+    <input type="file" id="csvFileInput" accept=".csv" class="hidden">
+    <button id="importFileBtn" class="bg-blue-500 text-white px-4 py-2 rounded flex-grow">
+        Importuj plik CSV
+    </button>
+</div>
        </div>
    </div>
 
@@ -208,7 +211,7 @@
        document.getElementById('importFileBtn').addEventListener('click', () => {
            document.getElementById('csvFileInput').click();
        });
-       
+       document.getElementById('saveConfigBtn').addEventListener('click', saveBrokerConfig);
        // Inicjalizacja
        window.addEventListener('DOMContentLoaded', loadBrokerFormats);
    </script>
