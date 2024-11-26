@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Import danych</title>
+   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-4">
+   <div class="max-w-4xl mx-auto">
+       <div class="bg-white rounded-lg shadow-lg p-5">
+           <div class="flex justify-between items-center mb-4">
+               <h3 class="text-xl font-bold">Import danych od brokera</h3>
+           </div>
+
+           <!-- Konfiguracja brokera -->
+           <div class="mb-4">
+               <select id="brokerSelect" class="w-full p-2 border rounded mb-2">
+                   <option value="">Wybierz brokera lub dodaj nowego...</option>
+               </select>
+               <div class="flex gap-2">
+                   <button id="addBrokerBtn" class="bg-blue-500 text-white px-4 py-2 rounded">
+                       Dodaj brokera
+                   </button>
+                   <button id="deleteBrokerBtn" class="bg-red-500 text-white px-4 py-2 rounded">
+                       Usuń brokera
+                   </button>
+               </div>
+           </div>
+
+           <!-- Konfiguracja kolumn -->
+           <div class="mb-4">
+               <label class="block mb-2">Nagłówki kolumn (CSV):</label>
+               <textarea id="headerInput" class="w-full p-2 border rounded h-20"></textarea>
+           </div>
+
+           <div class="mb-4">
+               <label class="block mb-2">Przykładowy wiersz danych:</label>
+               <textarea id="sampleDataInput" class="w-full p-2 border rounded h-20"></textarea>
+               <button id="parseColumnsBtn" class="mt-2 bg-green-500 text-white px-4 py-2 rounded">
+                   Parsuj kolumny
+               </button>
+           </div>
+
+           <div id="columnMappingContainer" class="mb-4 hidden">
+               <h3 class="font-bold mb-2">Mapowanie kolumn:</h3>
+               <div id="columnMapping" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                   <!-- Tu będą generowane opcje mapowania -->
+               </div>
+           </div>
+
+           <!-- Import pliku -->
+           <div class="mt-4">
+               <input type="file" id="csvFileInput" accept=".csv" class="hidden">
+               <button id="importFileBtn" class="bg-blue-500 text-white px-4 py-2 rounded w-full">
+                   Importuj plik CSV
+               </button>
+           </div>
+       </div>
+   </div>
+
+   <script>
+       const requiredFields = {
+           date: 'Data handlu',
+           pair: 'Symbol',
+           direction: 'Kierunek',
+           entry: 'Cena wejścia',
+           exit: 'Cena wyjścia',
+           volume: 'Wolumen',
+           takeProfit: 'Take Profit',
+           stopLoss: 'Stop Loss'
+       };
+
+       let columnsData = {
+           headers: [],
+           sample: []
+       };
+
+       let brokerFormats = {
+           formatVersion: 1,
+           brokers: {}
+       };
+
+       function parseColumns() {
+           const headers = document.getElementById('headerInput').value.trim();
+           const sample = document.getElementById('sampleDataInput').value.trim();
+           
+           columnsData.headers = headers.split(',').map(h => h.trim());
+           columnsData.sample = sample.split(',').map(d => d.trim());
+           
+           generateMappingInterface();
+       }
+
+       function generateMappingInterface() {
+           const container = document.getElementById('columnMapping');
+           container.innerHTML = '';
+           
+           Object.entries(requiredFields).forEach(([field, label]) => {
+               const div = document.createElement('div');
+               div.className = 'p-2 border rounded';
+               
+               const select = document.createElement('select');
+               select.className = 'w-full p-2 border rounded column-map';
+               select.dataset.field = field;
+               
+               select.innerHTML = '<option value="">Nie wybrano</option>';
+               
+               columnsData.headers.forEach((header, index) => {
+                   const option = document.createElement('option');
+                   option.value = header;
+                   option.textContent = `${header} (np. ${columnsData.sample[index]})`;
+                   select.appendChild(option);
+               });
+               
+               div.innerHTML = `<label class="block mb-1">${label}</label>`;
+               div.appendChild(select);
+               container.appendChild(div);
+           });
+           
+           document.getElementById('columnMappingContainer').classList.remove('hidden');
+       }
+
+       function saveBrokerConfig() {
+           const broker = document.getElementById('brokerSelect').value;
+           if (!broker) {
+               alert('Wybierz lub dodaj brokera');
+               return;
+           }
+
+           const mapping = {};
+           document.querySelectorAll('.column-map').forEach(select => {
+               if (select.value) {
+                   mapping[select.dataset.field] = select.value;
+               }
+           });
+
+           brokerFormats.brokers[broker] = {
+               columnMap: mapping,
+               headers: columnsData.headers,
+               sampleData: columnsData.sample
+           };
+
+           localStorage.setItem('brokerFormats', JSON.stringify(brokerFormats));
+           alert('Konfiguracja zapisana');
+       }
+
+       function loadBrokerFormats() {
+           const saved = localStorage.getItem('brokerFormats');
+           if (saved) {
+               brokerFormats = JSON.parse(saved);
+               updateBrokerSelect();
+           }
+       }
+
+       function updateBrokerSelect() {
+           const select = document.getElementById('brokerSelect');
+           select.innerHTML = '<option value="">Wybierz brokera...</option>';
+           
+           Object.keys(brokerFormats.brokers).forEach(broker => {
+               const option = document.createElement('option');
+               option.value = broker;
+               option.textContent = broker;
+               select.appendChild(option);
+           });
+       }
+
+       function addNewBroker() {
+           const name = prompt('Podaj nazwę brokera:');
+           if (name) {
+               if (brokerFormats.brokers[name]) {
+                   alert('Broker o tej nazwie już istnieje');
+                   return;
+               }
+               brokerFormats.brokers[name] = {
+                   columnMap: {},
+                   headers: [],
+                   sampleData: []
+               };
+               updateBrokerSelect();
+               document.getElementById('brokerSelect').value = name;
+           }
+       }
+
+       function loadBrokerConfig(brokerName) {
+           const broker = brokerFormats.brokers[brokerName];
+           if (!broker) return;
+
+           document.getElementById('headerInput').value = broker.headers.join(',');
+           document.getElementById('sampleDataInput').value = broker.sampleData.join(',');
+           
+           columnsData.headers = broker.headers;
+           columnsData.sample = broker.sampleData;
+           
+           generateMappingInterface();
+
+           Object.entries(broker.columnMap).forEach(([field, value]) => {
+               const select = document.querySelector(`.column-map[data-field="${field}"]`);
+               if (select) select.value = value;
+           });
+       }
+
+       // Event Listeners
+       document.getElementById('parseColumnsBtn').addEventListener('click', parseColumns);
+       document.getElementById('addBrokerBtn').addEventListener('click', addNewBroker);
+       document.getElementById('brokerSelect').addEventListener('change', (e) => {
+           if (e.target.value) loadBrokerConfig(e.target.value);
+       });
+       document.getElementById('importFileBtn').addEventListener('click', () => {
+           document.getElementById('csvFileInput').click();
+       });
+       
+       // Inicjalizacja
+       window.addEventListener('DOMContentLoaded', loadBrokerFormats);
+   </script>
+</body>
+</html>
