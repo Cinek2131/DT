@@ -135,11 +135,15 @@
                            onChange="importBrokerData(event)"/>
                     <label for="brokerDataInput" 
                            class="bg-blue-500 text-white px-3 py-2 rounded text-sm md:text-base hover:bg-blue-600 cursor-pointer">
-                        Importuj z brokera
+                        Importuj z brokera2
                     </label>
                     <button onclick="exportToCSV()" 
                             class="bg-green-500 text-white px-3 py-2 rounded text-sm md:text-base hover:bg-green-600">
                         Eksportuj do CSV
+                    </button>
+                    <button onclick="window.open('importDialog.html', 'ImportWindow', 'width=800,height=800')" 
+                    class="bg-blue-500 text-white px-3 py-2 rounded text-sm md:text-base hover:bg-blue-600 cursor-pointer">
+                    Importuj z brokera
                     </button>
                 </div>
             </div>
