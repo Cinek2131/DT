@@ -64,18 +64,18 @@
 
    <script>
        const requiredFields = {
-           date: 'Timestamp',
-           pair: 'Instrument Symbol',
-           direction: 'Quantity',
-           entry: 'Price',
-           takeProfit: 'Take Profit',
-           stopLoss: 'Stop Loss',
-           exit: 'Price',
-           volume: 'Quantity',
-           profit: 'Rpl Converted',
-           result: 'Status',
-           setup: 'Imported',
-           notes: 'Trade Id'
+           date: {label: 'Data handlu', default: 'Timestamp'},
+           pair: {label: 'Symbol', default: 'Instrument Symbol'},
+           direction: {label: 'Kierunek', default: 'Quantity'},
+           entry: {label: 'Cena wejścia', default: 'Price'},
+           takeProfit: {label: 'Take Profit', default: 'Take Profit'},
+           stopLoss: {label: 'Stop Loss', default: 'Stop Loss'},
+           exit: {label: 'Cena wyjścia', default: 'Price'},
+           volume: {label: 'Wolumen', default: 'Quantity'},
+           profit: {label: 'Zysk', default: 'Rpl Converted'},
+           result: {label: 'Wynik', default: 'Status'},
+           setup: {label: 'Setup', default: 'Imported'},
+           notes: {label: 'Notatki', default: 'Trade Id'}
        };
 
        let columnsData = {
@@ -92,7 +92,6 @@
            const headers = document.getElementById('headerInput').value.trim();
            const sample = document.getElementById('sampleDataInput').value.trim();
            
-           // Usuń cudzysłowy i podziel na kolumny
            columnsData.headers = headers.split(',').map(h => h.replace(/"/g, '').trim());
            columnsData.sample = sample.split(',').map(d => d.replace(/"/g, '').trim());
            
@@ -103,7 +102,7 @@
            const container = document.getElementById('columnMapping');
            container.innerHTML = '';
            
-           Object.entries(requiredFields).forEach(([field, defaultValue]) => {
+           Object.entries(requiredFields).forEach(([field, fieldInfo]) => {
                const div = document.createElement('div');
                div.className = 'p-2 border rounded';
                
@@ -117,13 +116,19 @@
                    const option = document.createElement('option');
                    option.value = header;
                    option.textContent = `${header} (np. ${columnsData.sample[index]})`;
-                   option.selected = header === defaultValue;
+                   if (header === fieldInfo.default) {
+                       option.selected = true;
+                   }
                    select.appendChild(option);
                });
                
                select.addEventListener('change', checkAllFieldsSelected);
                
-               div.innerHTML = `<label class="block mb-1">${field}</label>`;
+               const label = document.createElement('label');
+               label.className = 'block mb-1';
+               label.textContent = fieldInfo.label;
+               
+               div.appendChild(label);
                div.appendChild(select);
                container.appendChild(div);
            });
@@ -144,35 +149,19 @@
        }
 
        function processTradeData(data, mapping) {
-           return {
-               date: new Date(data[mapping.date]).toISOString(),
-               pair: data[mapping.pair],
-               direction: parseFloat(data[mapping.direction]) > 0 ? 'long' : 'short',
-               entry: parseFloat(data[mapping.entry]),
-               takeProfit: parseFloat(data[mapping.takeProfit]) || null,
-               stopLoss: parseFloat(data[mapping.stopLoss]) || null,
-               exit: parseFloat(data[mapping.exit]),
-               volume: Math.abs(parseFloat(data[mapping.volume])),
-               profit: parseFloat(data[mapping.profit]).toFixed(2),
-               result: parseFloat(data[mapping.profit]) > 0 ? 'win' : 'loss',
-               setup: 'Imported',
-               notes: `Trade ID: ${data[mapping.notes]}`
-           };
+           const tradeData = {};
+           Object.keys(requiredFields).forEach(field => {
+               tradeData[field] = data[mapping[field]] || requiredFields[field].default;
+           });
+           
+           tradeData.direction = parseFloat(tradeData.direction) > 0 ? 'long' : 'short';
+           tradeData.volume = Math.abs(parseFloat(tradeData.volume));
+           tradeData.profit = parseFloat(tradeData.profit).toFixed(2);
+           tradeData.result = parseFloat(tradeData.profit) > 0 ? 'win' : 'loss';
+           
+           return tradeData;
        }
-function processTradeData(data, mapping) {
-    const tradeData = {};
-    Object.keys(requiredFields).forEach(field => {
-        tradeData[field] = data[mapping[field]] || requiredFields[field];
-    });
-    
-    // Modyfikacja danych według formatu
-    tradeData.direction = parseFloat(tradeData.direction) > 0 ? 'long' : 'short';
-    tradeData.volume = Math.abs(parseFloat(tradeData.volume));
-    tradeData.profit = parseFloat(tradeData.profit).toFixed(2);
-    tradeData.result = parseFloat(tradeData.profit) > 0 ? 'win' : 'loss';
-    
-    return tradeData;
-}
+
        function saveBrokerConfig() {
            const broker = document.getElementById('brokerSelect').value;
            if (!broker) {
