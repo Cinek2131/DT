@@ -159,7 +159,20 @@
                notes: `Trade ID: ${data[mapping.notes]}`
            };
        }
-
+function processTradeData(data, mapping) {
+    const tradeData = {};
+    Object.keys(requiredFields).forEach(field => {
+        tradeData[field] = data[mapping[field]] || requiredFields[field];
+    });
+    
+    // Modyfikacja danych według formatu
+    tradeData.direction = parseFloat(tradeData.direction) > 0 ? 'long' : 'short';
+    tradeData.volume = Math.abs(parseFloat(tradeData.volume));
+    tradeData.profit = parseFloat(tradeData.profit).toFixed(2);
+    tradeData.result = parseFloat(tradeData.profit) > 0 ? 'win' : 'loss';
+    
+    return tradeData;
+}
        function saveBrokerConfig() {
            const broker = document.getElementById('brokerSelect').value;
            if (!broker) {
