@@ -207,16 +207,23 @@
            checkAllFieldsSelected();
        }
 
-       function checkAllFieldsSelected() {
-           const allSelects = document.querySelectorAll('.column-map');
-           const allSelected = Array.from(allSelects).every(select => select.value !== '');
-           
-           if (allSelected) {
-               document.getElementById('saveConfigBtn').classList.remove('hidden');
-           } else {
-               document.getElementById('saveConfigBtn').classList.add('hidden');
-           }
-       }
+      function checkAllFieldsSelected() {
+    // Lista wymaganych pól - możesz dostosować według potrzeb
+    const requiredFields = ['date', 'pair', 'profit'];
+    
+    const requiredSelects = document.querySelectorAll(
+        requiredFields.map(field => `.column-map[data-field="${field}"]`).join(',')
+    );
+    
+    const requiredFieldsSelected = Array.from(requiredSelects)
+        .every(select => select.value !== '');
+    
+    if (requiredFieldsSelected) {
+        document.getElementById('saveConfigBtn').classList.remove('hidden');
+    } else {
+        document.getElementById('saveConfigBtn').classList.add('hidden');
+    }
+}
 
        function saveBrokerConfig() {
            const broker = document.getElementById('brokerSelect').value;
