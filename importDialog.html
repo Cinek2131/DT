@@ -31,12 +31,14 @@
            <!-- Konfiguracja kolumn -->
            <div class="mb-4">
                <label class="block mb-2">Nagłówki kolumn (CSV):</label>
-               <textarea id="headerInput" class="w-full p-2 border rounded h-20"></textarea>
+               <textarea id="headerInput" class="w-full p-2 border rounded h-20" 
+                   placeholder="Trade Id,Exec Id,Account Id,Instrument Symbol..."></textarea>
            </div>
 
            <div class="mb-4">
                <label class="block mb-2">Przykładowy wiersz danych:</label>
-               <textarea id="sampleDataInput" class="w-full p-2 border rounded h-20"></textarea>
+               <textarea id="sampleDataInput" class="w-full p-2 border rounded h-20"
+                   placeholder="00384627-0055-311e-0000-0000822be433,00384627-0055-311e..."></textarea>
                <button id="parseColumnsBtn" class="mt-2 bg-green-500 text-white px-4 py-2 rounded">
                    Parsuj kolumny
                </button>
@@ -45,11 +47,9 @@
            <div id="columnMappingContainer" class="mb-4 hidden">
                <h3 class="font-bold mb-2">Mapowanie kolumn:</h3>
                <div id="columnMapping" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                   <!-- Tu będą generowane opcje mapowania -->
                </div>
            </div>
 
-           <!-- Import pliku -->
            <div class="flex gap-2 mt-4">
                <button id="saveConfigBtn" class="bg-green-500 text-white px-4 py-2 rounded hidden">
                    Zapisz konfigurację
@@ -64,14 +64,18 @@
 
    <script>
        const requiredFields = {
-           date: 'Data handlu',
-           pair: 'Symbol',
-           direction: 'Kierunek',
-           entry: 'Cena wejścia',
-           exit: 'Cena wyjścia',
-           volume: 'Wolumen',
+           date: 'Timestamp',
+           pair: 'Instrument Symbol',
+           direction: 'Quantity',
+           entry: 'Price',
            takeProfit: 'Take Profit',
-           stopLoss: 'Stop Loss'
+           stopLoss: 'Stop Loss',
+           exit: 'Price',
+           volume: 'Quantity',
+           profit: 'Rpl Converted',
+           result: 'Status',
+           setup: 'Imported',
+           notes: 'Trade Id'
        };
 
        let columnsData = {
@@ -88,8 +92,9 @@
            const headers = document.getElementById('headerInput').value.trim();
            const sample = document.getElementById('sampleDataInput').value.trim();
            
-           columnsData.headers = headers.split(',').map(h => h.trim());
-           columnsData.sample = sample.split(',').map(d => d.trim());
+           // Usuń cudzysłowy i podziel na kolumny
+           columnsData.headers = headers.split(',').map(h => h.replace(/"/g, '').trim());
+           columnsData.sample = sample.split(',').map(d => d.replace(/"/g, '').trim());
            
            generateMappingInterface();
        }
@@ -98,7 +103,7 @@
            const container = document.getElementById('columnMapping');
            container.innerHTML = '';
            
-           Object.entries(requiredFields).forEach(([field, label]) => {
+           Object.entries(requiredFields).forEach(([field, defaultValue]) => {
                const div = document.createElement('div');
                div.className = 'p-2 border rounded';
                
@@ -112,17 +117,19 @@
                    const option = document.createElement('option');
                    option.value = header;
                    option.textContent = `${header} (np. ${columnsData.sample[index]})`;
+                   option.selected = header === defaultValue;
                    select.appendChild(option);
                });
                
                select.addEventListener('change', checkAllFieldsSelected);
                
-               div.innerHTML = `<label class="block mb-1">${label}</label>`;
+               div.innerHTML = `<label class="block mb-1">${field}</label>`;
                div.appendChild(select);
                container.appendChild(div);
            });
            
            document.getElementById('columnMappingContainer').classList.remove('hidden');
+           checkAllFieldsSelected();
        }
 
        function checkAllFieldsSelected() {
@@ -134,6 +141,23 @@
            } else {
                document.getElementById('saveConfigBtn').classList.add('hidden');
            }
+       }
+
+       function processTradeData(data, mapping) {
+           return {
+               date: new Date(data[mapping.date]).toISOString(),
+               pair: data[mapping.pair],
+               direction: parseFloat(data[mapping.direction]) > 0 ? 'long' : 'short',
+               entry: parseFloat(data[mapping.entry]),
+               takeProfit: parseFloat(data[mapping.takeProfit]) || null,
+               stopLoss: parseFloat(data[mapping.stopLoss]) || null,
+               exit: parseFloat(data[mapping.exit]),
+               volume: Math.abs(parseFloat(data[mapping.volume])),
+               profit: parseFloat(data[mapping.profit]).toFixed(2),
+               result: parseFloat(data[mapping.profit]) > 0 ? 'win' : 'loss',
+               setup: 'Imported',
+               notes: `Trade ID: ${data[mapping.notes]}`
+           };
        }
 
        function saveBrokerConfig() {
