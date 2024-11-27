@@ -253,6 +253,23 @@ if (!GITHUB_TOKEN) {
         let trades = [];
         let chart = null;
 
+// kompatibilny z importem danych z pliku importDialog Dodaj to w głównym pliku index.html w sekcji skryptów
+window.addEventListener('message', async function(event) {
+    if (event.data.type === 'importedTrades') {
+        const newTrades = event.data.trades;
+        
+        // Łączymy nowe trade'y z istniejącymi
+        trades = [...trades, ...newTrades];
+        
+        // Zapisujemy do GitHub
+        await saveToGithub(trades);
+        
+        // Odświeżamy widok
+        renderTrades();
+        updateStats();
+    }
+});
+        
         // Funkcje GitHub
         async function saveToGithub(trades) {
             try {
