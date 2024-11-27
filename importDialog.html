@@ -63,6 +63,7 @@
    </div>
 
    <script>
+       // Wymagane pola zgodne z głównym systemem
        const requiredFields = {
            date: {label: 'Data handlu', default: 'Timestamp'},
            pair: {label: 'Symbol', default: 'Instrument Symbol'},
@@ -74,7 +75,7 @@
            volume: {label: 'Wolumen', default: 'Quantity'},
            profit: {label: 'Zysk', default: 'Rpl Converted'},
            result: {label: 'Wynik', default: 'Status'},
-          
+           setup: {label: 'Setup', default: ''},
            notes: {label: 'Notatki', default: 'Trade Id'}
        };
 
@@ -87,6 +88,75 @@
            formatVersion: 1,
            brokers: {}
        };
+
+       // Funkcja do przetwarzania danych zgodnie z formatem głównego systemu
+       function processTradeData(data, mapping) {
+           const timestamp = new Date(data[mapping.date]);
+           const profit = parseFloat(data[mapping.profit] || '0');
+           const volume = Math.abs(parseFloat(data[mapping.volume] || '0'));
+           const direction = parseFloat(data[mapping.direction] || '0') > 0 ? 'long' : 'short';
+
+           return {
+               date: timestamp.toISOString(),
+               pair: data[mapping.pair] || '',
+               direction: direction,
+               entry: parseFloat(data[mapping.entry] || '0'),
+               exit: parseFloat(data[mapping.exit] || '0'),
+               takeProfit: parseFloat(data[mapping.takeProfit]) || null,
+               stopLoss: parseFloat(data[mapping.stopLoss]) || null,
+               volume: volume,
+               profit: profit.toFixed(2),
+               result: profit > 0 ? 'win' : profit < 0 ? 'loss' : 'be',
+               setup: data[mapping.setup] || 'Imported',
+               notes: `Trade ID: ${data[mapping.notes] || ''}`
+           };
+       }
+
+       async function importCSV(file, mapping) {
+           const text = await file.text();
+           const rows = text.split('\n');
+           const headers = rows[0].split(',').map(h => h.trim());
+           
+           const trades = rows.slice(1)
+               .filter(row => row.trim())
+               .map(row => {
+                   const columns = row.split(',').map(col => col.replace(/"/g, '').trim());
+                   const data = {};
+                   headers.forEach((header, index) => {
+                       data[header.trim()] = columns[index];
+                   });
+                   
+                   // Sprawdzamy czy trade jest zamknięty
+                   if (data.Status && data.Status !== 'CLOSED') return null;
+                   
+                   return processTradeData(data, mapping);
+               })
+               .filter(trade => trade !== null)
+               .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+           // Wysyłamy przetworzone dane do głównego okna
+           window.opener.postMessage({
+               type: 'importedTrades',
+               trades: trades
+           }, '*');
+
+           const summary = generateImportSummary(trades);
+           alert(`Import zakończony!\n\n${summary}`);
+       }
+
+       function generateImportSummary(trades) {
+           const total = trades.length;
+           const wins = trades.filter(t => t.result === 'win').length;
+           const losses = trades.filter(t => t.result === 'loss').length;
+           const be = trades.filter(t => t.result === 'be').length;
+           const totalProfit = trades.reduce((sum, t) => sum + parseFloat(t.profit), 0);
+           
+           return `Zaimportowano ${total} tradów\n` +
+                  `Zyski: ${wins}\n` +
+                  `Straty: ${losses}\n` +
+                  `Break Even: ${be}\n` +
+                  `Łączny wynik: ${totalProfit.toFixed(2)}`;
+       }
 
        function parseColumns() {
            const headers = document.getElementById('headerInput').value.trim();
@@ -146,20 +216,6 @@
            } else {
                document.getElementById('saveConfigBtn').classList.add('hidden');
            }
-       }
-
-       function processTradeData(data, mapping) {
-           const tradeData = {};
-           Object.keys(requiredFields).forEach(field => {
-               tradeData[field] = data[mapping[field]] || requiredFields[field].default;
-           });
-           
-           tradeData.direction = parseFloat(tradeData.direction) > 0 ? 'long' : 'short';
-           tradeData.volume = Math.abs(parseFloat(tradeData.volume));
-           tradeData.profit = parseFloat(tradeData.profit).toFixed(2);
-           tradeData.result = parseFloat(tradeData.profit) > 0 ? 'win' : 'loss';
-           
-           return tradeData;
        }
 
        function saveBrokerConfig() {
@@ -243,6 +299,25 @@
            
            checkAllFieldsSelected();
        }
+
+       // Obsługa importu pliku
+       document.getElementById('csvFileInput').addEventListener('change', async (event) => {
+           const file = event.target.files[0];
+           if (!file) return;
+
+           const broker = document.getElementById('brokerSelect').value;
+           if (!broker || !brokerFormats.brokers[broker]) {
+               alert('Wybierz prawidłową konfigurację brokera przed importem');
+               return;
+           }
+
+           try {
+               await importCSV(file, brokerFormats.brokers[broker].columnMap);
+           } catch (error) {
+               console.error('Błąd podczas importu:', error);
+               alert('Wystąpił błąd podczas importu. Sprawdź format pliku.');
+           }
+       });
 
        // Event Listeners
        document.getElementById('parseColumnsBtn').addEventListener('click', parseColumns);
