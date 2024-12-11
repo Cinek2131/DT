@@ -102,17 +102,21 @@
             <div class="text-sm md:text-base text-gray-600">Średni zysk</div>
             <div id="dailyAvgProfit" class="text-lg md:text-2xl font-bold">0</div>
         </div>
+       <div class="p-2 md:p-4 border rounded">
+            <div class="text-sm md:text-base text-gray-600">Liczba zysków</div>
+            <div id="dailyProfits" class="text-lg md:text-2xl font-bold">0</div>
+        </div>
+        <div class="p-2 md:p-4 border rounded">
+            <div class="text-sm md:text-base text-gray-600">Liczba strat</div>
+            <div id="dailyLosses" class="text-lg md:text-2xl font-bold">0</div>
+        </div>
         <div class="p-2 md:p-4 border rounded">
             <div class="text-sm md:text-base text-gray-600">Liczba TP</div>
             <div id="dailyTP" class="text-lg md:text-2xl font-bold">0</div>
         </div>
-       <div class="p-2 md:p-4 border rounded">
-           <div class="text-sm md:text-base text-gray-600">Liczba SL</div>
-           <div id="dailySL" class="text-lg md:text-2xl font-bold">0</div>
-       </div>
-       <div class="p-2 md:p-4 border rounded">
-           <div class="text-sm md:text-base text-gray-600">Liczba BE</div>
-           <div id="dailyBE" class="text-lg md:text-2xl font-bold">0</div>
+        <div class="p-2 md:p-4 border rounded">
+            <div class="text-sm md:text-base text-gray-600">Liczba SL</div>
+            <div id="dailySL" class="text-lg md:text-2xl font-bold">0</div>
         </div>
     </div>
 </div>
@@ -419,13 +423,13 @@ function calculateDailyStats(trades) {
 
     const stats = {
         totalTrades: dailyTrades.length,
-        winningTrades: 0,
-        losingTrades: 0,
+        profits: 0,    // liczba zyskownych tradów
+        losses: 0,     // liczba stratnych tradów
         totalProfit: 0,
         avgProfit: 0,
         winRate: 0,
-        tp: 0,
-        sl: 0,
+        tp: 0,         // liczba TP
+        sl: 0,         // liczba SL
         be: 0
     };
 
@@ -433,19 +437,25 @@ function calculateDailyStats(trades) {
         const profit = parseFloat(trade.profit);
         stats.totalProfit += profit;
         
+        // Liczenie zysków/strat bazując na wyniku finansowym
         if (profit > 0) {
-            stats.winningTrades++;
-            stats.tp++;
+            stats.profits++;
         } else if (profit < 0) {
-            stats.losingTrades++;
-            stats.sl++;
-        } else if (profit === 0) {
+            stats.losses++;
+        } else {
             stats.be++;
+        }
+
+        // Liczenie TP/SL bazując na source
+        if (trade.exit === trade.takeProfit) {
+            stats.tp++;
+        } else if (trade.exit === trade.stopLoss) {
+            stats.sl++;
         }
     });
 
     stats.winRate = stats.totalTrades ? 
-        ((stats.winningTrades / stats.totalTrades) * 100).toFixed(2) : 0;
+        ((stats.profits / stats.totalTrades) * 100).toFixed(2) : 0;
     stats.totalProfit = stats.totalProfit.toFixed(2);
     stats.avgProfit = stats.totalTrades ? 
         (stats.totalProfit / stats.totalTrades).toFixed(2) : 0;
