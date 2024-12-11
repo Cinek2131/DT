@@ -161,6 +161,7 @@
         <th class="p-2 text-right">Wolumen</th>
         <th class="p-2 text-right">Profit</th>
         <th class="p-2 text-center">Wynik</th>
+        <th class="p-2 text-center">Source</th>
     </tr>
 </thead>
                     <tbody id="tradesBody"></tbody>
@@ -564,26 +565,40 @@ function calculateDailyStats(trades) {
         }
 
         // Renderowanie tabeli
-  function renderTrades() {
+function renderTrades() {
     const tbody = document.getElementById('tradesBody');
     const sortedTrades = [...trades].sort((a, b) => new Date(b.date) - new Date(a.date));
     
-    tbody.innerHTML = sortedTrades.map(trade => `
+    tbody.innerHTML = sortedTrades.map(trade => {
+        // Określenie źródła zamknięcia pozycji
+        let source = 'USER';
+        if (trade.exit === trade.takeProfit) {
+            source = 'TP';
+        } else if (trade.exit === trade.stopLoss) {
+            source = 'SL';
+        }
+        
+        // Style dla wartości TP/SL
+        const tpStyle = source === 'TP' ? 'background-color: #d1fae5; font-weight: bold;' : '';
+        const slStyle = source === 'SL' ? 'background-color: #fee2e2; font-weight: bold;' : '';
+        
+        return `
         <tr class="border-b">
             <td class="p-2">${new Date(trade.date).toLocaleString()}</td>
             <td class="p-2">${trade.pair}</td>
             <td class="p-2">${trade.direction}</td>
             <td class="p-2 text-right">${trade.entry}</td>
-            <td class="p-2 text-right">${trade.takeProfit ? trade.takeProfit : '-'}</td>
-            <td class="p-2 text-right">${trade.stopLoss ? trade.stopLoss : '-'}</td>
+            <td class="p-2 text-right" style="${tpStyle}">${trade.takeProfit ? trade.takeProfit : '-'}</td>
+            <td class="p-2 text-right" style="${slStyle}">${trade.stopLoss ? trade.stopLoss : '-'}</td>
             <td class="p-2 text-right">${trade.exit}</td>
             <td class="p-2 text-right">${trade.volume}</td>
             <td class="p-2 text-right ${parseFloat(trade.profit) >= 0 ? 'text-green-600' : 'text-red-600'}">
                 ${trade.profit}
             </td>
             <td class="p-2 text-center">${trade.result}</td>
+            <td class="p-2 text-center">${source}</td>
         </tr>
-    `).join('');
+    `}).join('');
 }
 
         // Export do CSV
