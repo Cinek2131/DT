@@ -501,18 +501,16 @@ function calculateDailyStats(trades) {
     const stats = calculateStats(trades);
     const dailyStats = calculateDailyStats(trades);
     
-    document.getElementById('totalTrades').textContent = stats.totalTrades;
-    document.getElementById('winRate').textContent = `${stats.winRate}%`;
-    document.getElementById('totalProfit').textContent = stats.totalProfit;
-    document.getElementById('avgProfit').textContent = stats.avgProfit;
-    
-    document.getElementById('dailyTotalTrades').textContent = dailyStats.totalTrades;
-    document.getElementById('dailyWinRate').textContent = `${dailyStats.winRate}%`;
-    document.getElementById('dailyProfit').textContent = dailyStats.totalProfit;
-    document.getElementById('dailyAvgProfit').textContent = dailyStats.avgProfit;
-    document.getElementById('dailyTP').textContent = dailyStats.tp;
-    document.getElementById('dailySL').textContent = dailyStats.sl;
-    document.getElementById('dailyBE').textContent = dailyStats.be;
+    document.getElementById('dailyTotalTrades').textContent = dailyStats.totalTrades || 0;
+    document.getElementById('dailyWinRate').textContent = `${dailyStats.winRate || 0}%`;
+    document.getElementById('dailyProfit').textContent = dailyStats.totalProfit || 0;
+    document.getElementById('dailyAvgProfit').textContent = dailyStats.avgProfit || 0;
+    document.getElementById('dailyProfits').textContent = dailyStats.profits || 0;
+    document.getElementById('dailyLosses').textContent = dailyStats.losses || 0;
+    document.getElementById('dailyTP').textContent = dailyStats.tp || 0;
+    document.getElementById('dailySL').textContent = dailyStats.sl || 0;
+    document.getElementById('dailyBE').textContent = dailyStats.be || 0;
+    document.getElementById('dailyCompletedTrades').textContent = dailyStats.completedTrades || 0;
     
     updateChart(trades);
 }
