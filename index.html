@@ -122,6 +122,10 @@
             <div class="text-sm md:text-base text-gray-600">Break Even (SL+)</div>
             <div id="dailyBE" class="text-lg md:text-2xl font-bold">0</div>
         </div>
+        <div class="p-2 md:p-4 border rounded">
+            <div class="text-sm md:text-base text-gray-600">Liczba tradów</div>
+            <div id="dailyCompletedTrades" class="text-lg md:text-2xl font-bold">0</div>
+        </div>
     </div>
 </div>
         
@@ -170,6 +174,7 @@
         <th class="p-2 text-right">Profit</th>
         <th class="p-2 text-center">Wynik</th>
         <th class="p-2 text-center">Source</th>
+        
     </tr>
 </thead>
                     <tbody id="tradesBody"></tbody>
@@ -425,46 +430,68 @@ function calculateDailyStats(trades) {
         new Date(trade.date).toDateString() === today
     );
 
-    const stats = {
-        totalTrades: dailyTrades.length,
-        profits: 0,    // liczba zyskownych tradów
-        losses: 0,     // liczba stratnych tradów
-        totalProfit: 0,
-        avgProfit: 0,
-        winRate: 0,
-        tp: 0,         // liczba TP
-        sl: 0,         // liczba SL
-        be: 0          // liczba BE
+    let activePositions = new Map();
+    let stats = {
+        completedTrades: 0,    // tu będzie rzeczywista liczba pełnych tradów
+        profits: 0,
+        losses: 0,
+        tp: 0,
+        sl: 0,
+        be: 0,
+        user: 0
     };
 
-    dailyTrades.forEach(trade => {
-        const profit = parseFloat(trade.profit);
-        stats.totalProfit += profit;
-        
-        // Liczenie zysków/strat bazując na wyniku finansowym
-        if (profit > 0) {
-            stats.profits++;
-        } else if (profit < 0) {
-            stats.losses++;
-        }
+    // Sortujemy chronologicznie
+    const sortedTrades = [...dailyTrades].sort((a, b) => 
+        new Date(a.date) - new Date(b.date)
+    );
 
-        // Liczenie TP/SL/BE
-        if (trade.exit === trade.takeProfit) {
-            stats.tp++;
-        } else if (trade.exit === trade.stopLoss) {
-            if (profit > 0) {
-                stats.be++; // Break Even - zamknięte przez SL ale z zyskiem
+    for (const trade of sortedTrades) {
+        const volume = parseFloat(trade.volume);
+        const direction = trade.direction;
+        const pair = trade.pair;
+        const key = pair;
+
+        if (!activePositions.has(key)) {
+            // Nowa pozycja
+            activePositions.set(key, {
+                direction: direction,
+                volume: volume,
+                initialVolume: volume
+            });
+        } else {
+            const position = activePositions.get(key);
+            
+            if (position.direction !== direction) {
+                // Przeciwna pozycja - redukujemy wolumen
+                position.volume -= volume;
+                
+                // Jeśli pozycja została wyzerowana - mamy pełny trade
+                if (Math.abs(position.volume) < 0.0001) {
+                    stats.completedTrades++; // zwiększamy licznik pełnych tradów
+                    
+                    // Sprawdzamy sposób zamknięcia
+                    if (trade.exit === trade.takeProfit) {
+                        stats.tp++;
+                    } else if (trade.exit === trade.stopLoss) {
+                        if (parseFloat(trade.profit) > 0) {
+                            stats.be++;
+                        } else {
+                            stats.sl++;
+                        }
+                    } else {
+                        stats.user++;
+                    }
+
+                    activePositions.delete(key);
+                }
             } else {
-                stats.sl++; // Standardowy Stop Loss ze stratą
+                // Dodatkowa pozycja w tym samym kierunku
+                position.volume += volume;
+                position.initialVolume += volume;
             }
         }
-    });
-
-    stats.winRate = stats.totalTrades ? 
-        ((stats.profits / stats.totalTrades) * 100).toFixed(2) : 0;
-    stats.totalProfit = stats.totalProfit.toFixed(2);
-    stats.avgProfit = stats.totalTrades ? 
-        (stats.totalProfit / stats.totalTrades).toFixed(2) : 0;
+    }
 
     return stats;
 }
