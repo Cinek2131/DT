@@ -82,12 +82,14 @@
             </div>
         </div>
         
+
 <!-- Dzienne statystyki -->
 <div class="bg-white rounded-lg shadow-lg p-3 md:p-6 mb-4">
     <h2 class="text-xl md:text-2xl font-bold mb-3">Statystyki Dzienne</h2>
     <div class="grid grid-cols-2 stats-grid gap-2 md:gap-4">
         <div class="p-2 md:p-4 border rounded">
             <div class="text-sm md:text-base text-gray-600">Liczba tradów</div>
+            <!-- Zmieniona nazwa id aby pasowała do nowych zmiennych -->
             <div id="dailyTotalTrades" class="text-lg md:text-2xl font-bold">0</div>
         </div>
         <div class="p-2 md:p-4 border rounded">
@@ -96,31 +98,31 @@
         </div>
         <div class="p-2 md:p-4 border rounded">
             <div class="text-sm md:text-base text-gray-600">Zysk dzienny</div>
-            <div id="dailyProfit" class="text-lg md:text-2xl font-bold">0</div>
+            <div id="dailyTotalProfit" class="text-lg md:text-2xl font-bold">0</div>
         </div>
         <div class="p-2 md:p-4 border rounded">
             <div class="text-sm md:text-base text-gray-600">Średni zysk</div>
             <div id="dailyAvgProfit" class="text-lg md:text-2xl font-bold">0</div>
         </div>
-       <div class="p-2 md:p-4 border rounded">
+        <div class="p-2 md:p-4 border rounded">
             <div class="text-sm md:text-base text-gray-600">Liczba zysków</div>
-            <div id="dailyProfits" class="text-lg md:text-2xl font-bold">0</div>
+            <div id="dailyProfitsCount" class="text-lg md:text-2xl font-bold">0</div>
         </div>
         <div class="p-2 md:p-4 border rounded">
             <div class="text-sm md:text-base text-gray-600">Liczba strat</div>
-            <div id="dailyLosses" class="text-lg md:text-2xl font-bold">0</div>
+            <div id="dailyLossesCount" class="text-lg md:text-2xl font-bold">0</div>
         </div>
         <div class="p-2 md:p-4 border rounded">
             <div class="text-sm md:text-base text-gray-600">Liczba TP</div>
-            <div id="dailyTP" class="text-lg md:text-2xl font-bold">0</div>
+            <div id="dailyTPCount" class="text-lg md:text-2xl font-bold">0</div>
         </div>
         <div class="p-2 md:p-4 border rounded">
             <div class="text-sm md:text-base text-gray-600">Liczba SL</div>
-            <div id="dailySL" class="text-lg md:text-2xl font-bold">0</div>
+            <div id="dailySLCount" class="text-lg md:text-2xl font-bold">0</div>
         </div>
         <div class="p-2 md:p-4 border rounded">
             <div class="text-sm md:text-base text-gray-600">Break Even (SL+)</div>
-            <div id="dailyBE" class="text-lg md:text-2xl font-bold">0</div>
+            <div id="dailyBECount" class="text-lg md:text-2xl font-bold">0</div>
         </div>
     </div>
 </div>
@@ -425,67 +427,70 @@ function calculateDailyStats(trades) {
         new Date(trade.date).toDateString() === today
     );
 
-    const stats = {
-        totalTrades: dailyTrades.length,
-        profits: 0,    // liczba zyskownych tradów
-        losses: 0,     // liczba stratnych tradów
-        totalProfit: 0,
-        avgProfit: 0,
-        winRate: 0,
-        tp: 0,         // liczba TP
-        sl: 0,         // liczba SL
-        be: 0          // liczba BE
+    const dailyStats = {
+        dailyTotalTrades: dailyTrades.length,
+        dailyProfitsCount: 0,    // zmieniona nazwa
+        dailyLossesCount: 0,     // zmieniona nazwa
+        dailyTotalProfit: 0,     // zmieniona nazwa
+        dailyAvgProfit: 0,       // zmieniona nazwa
+        dailyWinRate: 0,         // zmieniona nazwa
+        dailyTPCount: 0,         // zmieniona nazwa
+        dailySLCount: 0,         // zmieniona nazwa
+        dailyBECount: 0          // zmieniona nazwa
     };
 
     dailyTrades.forEach(trade => {
-        const profit = parseFloat(trade.profit);
-        stats.totalProfit += profit;
+        const dailyProfit = parseFloat(trade.profit);  // zmieniona nazwa
+        dailyStats.dailyTotalProfit += dailyProfit;
         
-        // Liczenie zysków/strat bazując na wyniku finansowym
-        if (profit > 0) {
-            stats.profits++;
-        } else if (profit < 0) {
-            stats.losses++;
+        if (dailyProfit > 0) {
+            dailyStats.dailyProfitsCount++;
+        } else if (dailyProfit < 0) {
+            dailyStats.dailyLossesCount++;
         }
 
-        // Liczenie TP/SL/BE
         if (trade.exit === trade.takeProfit) {
-            stats.tp++;
+            dailyStats.dailyTPCount++;
         } else if (trade.exit === trade.stopLoss) {
-            if (profit > 0) {
-                stats.be++; // Break Even - zamknięte przez SL ale z zyskiem
+            if (dailyProfit > 0) {
+                dailyStats.dailyBECount++;
             } else {
-                stats.sl++; // Standardowy Stop Loss ze stratą
+                dailyStats.dailySLCount++;
             }
         }
     });
 
-    stats.winRate = stats.totalTrades ? 
-        ((stats.profits / stats.totalTrades) * 100).toFixed(2) : 0;
-    stats.totalProfit = stats.totalProfit.toFixed(2);
-    stats.avgProfit = stats.totalTrades ? 
-        (stats.totalProfit / stats.totalTrades).toFixed(2) : 0;
+    dailyStats.dailyWinRate = dailyStats.dailyTotalTrades ? 
+        ((dailyStats.dailyProfitsCount / dailyStats.dailyTotalTrades) * 100).toFixed(2) : 0;
+    dailyStats.dailyTotalProfit = dailyStats.dailyTotalProfit.toFixed(2);
+    dailyStats.dailyAvgProfit = dailyStats.dailyTotalTrades ? 
+        (dailyStats.dailyTotalProfit / dailyStats.dailyTotalTrades).toFixed(2) : 0;
 
-    return stats;
+    return dailyStats;
+}
 }
         
         // Funkcje statystyk i wykresów
-        function updateStats() {
+function updateStats() {
     const stats = calculateStats(trades);
     const dailyStats = calculateDailyStats(trades);
     
+    // Ogólne statystyki - bez zmian
     document.getElementById('totalTrades').textContent = stats.totalTrades;
     document.getElementById('winRate').textContent = `${stats.winRate}%`;
     document.getElementById('totalProfit').textContent = stats.totalProfit;
     document.getElementById('avgProfit').textContent = stats.avgProfit;
     
-    document.getElementById('dailyTotalTrades').textContent = dailyStats.totalTrades;
-    document.getElementById('dailyWinRate').textContent = `${dailyStats.winRate}%`;
-    document.getElementById('dailyProfit').textContent = dailyStats.totalProfit;
-    document.getElementById('dailyAvgProfit').textContent = dailyStats.avgProfit;
-    document.getElementById('dailyTP').textContent = dailyStats.tp;
-    document.getElementById('dailySL').textContent = dailyStats.sl;
-    document.getElementById('dailyBE').textContent = dailyStats.be;
+    // Dzienne statystyki - zaktualizowane id elementów
+    document.getElementById('dailyTotalTrades').textContent = dailyStats.dailyTotalTrades;
+    document.getElementById('dailyWinRate').textContent = `${dailyStats.dailyWinRate}%`;
+    document.getElementById('dailyTotalProfit').textContent = dailyStats.dailyTotalProfit;
+    document.getElementById('dailyAvgProfit').textContent = dailyStats.dailyAvgProfit;
+    document.getElementById('dailyProfitsCount').textContent = dailyStats.dailyProfitsCount;
+    document.getElementById('dailyLossesCount').textContent = dailyStats.dailyLossesCount;
+    document.getElementById('dailyTPCount').textContent = dailyStats.dailyTPCount;
+    document.getElementById('dailySLCount').textContent = dailyStats.dailySLCount;
+    document.getElementById('dailyBECount').textContent = dailyStats.dailyBECount;
     
     updateChart(trades);
 }
