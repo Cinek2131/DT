@@ -472,16 +472,16 @@ function calculateDailyStats(trades) {
         
         // Funkcje statystyk i wykresów
 function updateStats() {
-    const stats = calculateStats(trades);
-    const dailyStats = calculateDailyStats(trades);
+    const stats = calculateStats(trades);       // ogólne statystyki - bez zmian
+    const dailyStats = calculateDailyStats(trades);  // nowe dzienne statystyki
     
-    // Ogólne statystyki - bez zmian
+    // Ogólne statystyki - bez zmian w nazwach zmiennych
     document.getElementById('totalTrades').textContent = stats.totalTrades;
     document.getElementById('winRate').textContent = `${stats.winRate}%`;
     document.getElementById('totalProfit').textContent = stats.totalProfit;
     document.getElementById('avgProfit').textContent = stats.avgProfit;
     
-    // Dzienne statystyki - zaktualizowane id elementów
+    // Dzienne statystyki - nowe nazwy zmiennych
     document.getElementById('dailyTotalTrades').textContent = dailyStats.dailyTotalTrades;
     document.getElementById('dailyWinRate').textContent = `${dailyStats.dailyWinRate}%`;
     document.getElementById('dailyTotalProfit').textContent = dailyStats.dailyTotalProfit;
@@ -496,31 +496,31 @@ function updateStats() {
 }
 
         function calculateStats(trades) {
-            const stats = {
-                totalTrades: trades.length,
-                winningTrades: 0,
-                losingTrades: 0,
-                totalProfit: 0,
-                avgProfit: 0,
-                winRate: 0
-            };
+    const stats = {
+        totalTrades: trades.length,
+        winningTrades: 0,
+        losingTrades: 0,
+        totalProfit: 0,
+        avgProfit: 0,
+        winRate: 0
+    };
 
-            trades.forEach(trade => {
-                const profit = parseFloat(trade.profit);
-                stats.totalProfit += profit;
-                
-                if (profit > 0) stats.winningTrades++;
-                else if (profit < 0) stats.losingTrades++;
-            });
+    trades.forEach(trade => {
+        const profit = parseFloat(trade.profit);
+        stats.totalProfit += profit;
+        
+        if (profit > 0) stats.winningTrades++;
+        else if (profit < 0) stats.losingTrades++;
+    });
 
-            stats.winRate = stats.totalTrades ? 
-                ((stats.winningTrades / stats.totalTrades) * 100).toFixed(2) : 0;
-            stats.totalProfit = stats.totalProfit.toFixed(2);
-            stats.avgProfit = stats.totalTrades ? 
-                (stats.totalProfit / stats.totalTrades).toFixed(2) : 0;
+    stats.winRate = stats.totalTrades ? 
+        ((stats.winningTrades / stats.totalTrades) * 100).toFixed(2) : 0;
+    stats.totalProfit = stats.totalProfit.toFixed(2);
+    stats.avgProfit = stats.totalTrades ? 
+        (stats.totalProfit / stats.totalTrades).toFixed(2) : 0;
 
-            return stats;
-        }
+    return stats;
+}
 
         function updateChart(trades) {
             const ctx = document.getElementById('profitChart').getContext('2d');
