@@ -420,53 +420,58 @@ async function importBrokerData(event) {
         }
 // Przelicanie statystyk dziennych//
 function calculateDailyStats(trades) {
+    console.log('Rozpoczynam obliczanie statystyk dziennych');
+    
     const today = new Date().toDateString();
     const dailyTrades = trades.filter(trade => 
         new Date(trade.date).toDateString() === today
     );
+    
+    console.log('Znalezione dzienne trade\'y:', dailyTrades);
 
-    const stats = {
-        totalTrades: dailyTrades.length,
-        profits: 0,    // liczba zyskownych tradów
-        losses: 0,     // liczba stratnych tradów
-        totalProfit: 0,
-        avgProfit: 0,
-        winRate: 0,
-        tp: 0,         // liczba TP
-        sl: 0,         // liczba SL
-        be: 0          // liczba BE
+    // Nowe nazwy zmiennych z prefixem 'daily'
+    const dailyStats = {
+        dailyTotalTrades: dailyTrades.length,
+        dailyProfitsCount: 0,
+        dailyLossesCount: 0,
+        dailyTotalProfit: 0,
+        dailyAvgProfit: 0,
+        dailyWinRate: 0,
+        dailyTPCount: 0,
+        dailySLCount: 0,
+        dailyBECount: 0
     };
 
     dailyTrades.forEach(trade => {
         const profit = parseFloat(trade.profit);
-        stats.totalProfit += profit;
+        dailyStats.dailyTotalProfit += profit;
         
-        // Liczenie zysków/strat bazując na wyniku finansowym
         if (profit > 0) {
-            stats.profits++;
+            dailyStats.dailyProfitsCount++;
         } else if (profit < 0) {
-            stats.losses++;
+            dailyStats.dailyLossesCount++;
         }
 
-        // Liczenie TP/SL/BE
         if (trade.exit === trade.takeProfit) {
-            stats.tp++;
+            dailyStats.dailyTPCount++;
         } else if (trade.exit === trade.stopLoss) {
             if (profit > 0) {
-                stats.be++; // Break Even - zamknięte przez SL ale z zyskiem
+                dailyStats.dailyBECount++;
             } else {
-                stats.sl++; // Standardowy Stop Loss ze stratą
+                dailyStats.dailySLCount++;
             }
         }
     });
 
-    stats.winRate = stats.totalTrades ? 
-        ((stats.profits / stats.totalTrades) * 100).toFixed(2) : 0;
-    stats.totalProfit = stats.totalProfit.toFixed(2);
-    stats.avgProfit = stats.totalTrades ? 
-        (stats.totalProfit / stats.totalTrades).toFixed(2) : 0;
+    dailyStats.dailyWinRate = dailyStats.dailyTotalTrades ? 
+        ((dailyStats.dailyProfitsCount / dailyStats.dailyTotalTrades) * 100).toFixed(2) : 0;
+    dailyStats.dailyTotalProfit = dailyStats.dailyTotalProfit.toFixed(2);
+    dailyStats.dailyAvgProfit = dailyStats.dailyTotalTrades ? 
+        (dailyStats.dailyTotalProfit / dailyStats.dailyTotalTrades).toFixed(2) : 0;
 
-    return stats;
+    console.log('Obliczone statystyki dzienne:', dailyStats);
+    
+    return dailyStats;
 }
         
         // Funkcje statystyk i wykresów
