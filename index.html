@@ -491,7 +491,13 @@ function calculateDailyStats(trades) {
     document.getElementById('dailyTP').textContent = dailyStats.tp;
     document.getElementById('dailySL').textContent = dailyStats.sl;
     document.getElementById('dailyBE').textContent = dailyStats.be;
-    
+
+       console.log('Rozpoczynam updateStats');
+    const stats = calculateStats(trades);
+    console.log('Wywołuję calculateDailyStats');
+    const dailyStats = calculateDailyStats(trades);
+    console.log('Zakończyłem calculateDailyStats', dailyStats);
+            
     updateChart(trades);
 }
 
