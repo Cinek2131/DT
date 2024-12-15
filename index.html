@@ -494,9 +494,9 @@ function calculateDailyStats(trades) {
     document.getElementById('dailyBE').textContent = dailyStats.be;
 
        console.log('Rozpoczynam updateStats');
-    const stats = calculateStats(trades);
+   
     console.log('Wywołuję calculateDailyStats');
-    const dailyStats = calculateDailyStats(trades);
+    
     console.log('Zakończyłem calculateDailyStats', dailyStats);
             
     updateChart(trades);
