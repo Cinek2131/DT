@@ -122,10 +122,6 @@
             <div class="text-sm md:text-base text-gray-600">Break Even (SL+)</div>
             <div id="dailyBE" class="text-lg md:text-2xl font-bold">0</div>
         </div>
-        <div class="p-2 md:p-4 border rounded">
-            <div class="text-sm md:text-base text-gray-600">Liczba tradów</div>
-            <div id="dailyCompletedTrades" class="text-lg md:text-2xl font-bold">0</div>
-        </div>
     </div>
 </div>
         
@@ -174,7 +170,6 @@
         <th class="p-2 text-right">Profit</th>
         <th class="p-2 text-center">Wynik</th>
         <th class="p-2 text-center">Source</th>
-        
     </tr>
 </thead>
                     <tbody id="tradesBody"></tbody>
@@ -430,68 +425,46 @@ function calculateDailyStats(trades) {
         new Date(trade.date).toDateString() === today
     );
 
-    let activePositions = new Map();
-    let stats = {
-        completedTrades: 0,    // tu będzie rzeczywista liczba pełnych tradów
-        profits: 0,
-        losses: 0,
-        tp: 0,
-        sl: 0,
-        be: 0,
-        user: 0
+    const stats = {
+        totalTrades: dailyTrades.length,
+        profits: 0,    // liczba zyskownych tradów
+        losses: 0,     // liczba stratnych tradów
+        totalProfit: 0,
+        avgProfit: 0,
+        winRate: 0,
+        tp: 0,         // liczba TP
+        sl: 0,         // liczba SL
+        be: 0          // liczba BE
     };
 
-    // Sortujemy chronologicznie
-    const sortedTrades = [...dailyTrades].sort((a, b) => 
-        new Date(a.date) - new Date(b.date)
-    );
+    dailyTrades.forEach(trade => {
+        const profit = parseFloat(trade.profit);
+        stats.totalProfit += profit;
+        
+        // Liczenie zysków/strat bazując na wyniku finansowym
+        if (profit > 0) {
+            stats.profits++;
+        } else if (profit < 0) {
+            stats.losses++;
+        }
 
-    for (const trade of sortedTrades) {
-        const volume = parseFloat(trade.volume);
-        const direction = trade.direction;
-        const pair = trade.pair;
-        const key = pair;
-
-        if (!activePositions.has(key)) {
-            // Nowa pozycja
-            activePositions.set(key, {
-                direction: direction,
-                volume: volume,
-                initialVolume: volume
-            });
-        } else {
-            const position = activePositions.get(key);
-            
-            if (position.direction !== direction) {
-                // Przeciwna pozycja - redukujemy wolumen
-                position.volume -= volume;
-                
-                // Jeśli pozycja została wyzerowana - mamy pełny trade
-                if (Math.abs(position.volume) < 0.0001) {
-                    stats.completedTrades++; // zwiększamy licznik pełnych tradów
-                    
-                    // Sprawdzamy sposób zamknięcia
-                    if (trade.exit === trade.takeProfit) {
-                        stats.tp++;
-                    } else if (trade.exit === trade.stopLoss) {
-                        if (parseFloat(trade.profit) > 0) {
-                            stats.be++;
-                        } else {
-                            stats.sl++;
-                        }
-                    } else {
-                        stats.user++;
-                    }
-
-                    activePositions.delete(key);
-                }
+        // Liczenie TP/SL/BE
+        if (trade.exit === trade.takeProfit) {
+            stats.tp++;
+        } else if (trade.exit === trade.stopLoss) {
+            if (profit > 0) {
+                stats.be++; // Break Even - zamknięte przez SL ale z zyskiem
             } else {
-                // Dodatkowa pozycja w tym samym kierunku
-                position.volume += volume;
-                position.initialVolume += volume;
+                stats.sl++; // Standardowy Stop Loss ze stratą
             }
         }
-    }
+    });
+
+    stats.winRate = stats.totalTrades ? 
+        ((stats.profits / stats.totalTrades) * 100).toFixed(2) : 0;
+    stats.totalProfit = stats.totalProfit.toFixed(2);
+    stats.avgProfit = stats.totalTrades ? 
+        (stats.totalProfit / stats.totalTrades).toFixed(2) : 0;
 
     return stats;
 }
@@ -501,16 +474,18 @@ function calculateDailyStats(trades) {
     const stats = calculateStats(trades);
     const dailyStats = calculateDailyStats(trades);
     
-    document.getElementById('dailyTotalTrades').textContent = dailyStats.totalTrades || 0;
-    document.getElementById('dailyWinRate').textContent = `${dailyStats.winRate || 0}%`;
-    document.getElementById('dailyProfit').textContent = dailyStats.totalProfit || 0;
-    document.getElementById('dailyAvgProfit').textContent = dailyStats.avgProfit || 0;
-    document.getElementById('dailyProfits').textContent = dailyStats.profits || 0;
-    document.getElementById('dailyLosses').textContent = dailyStats.losses || 0;
-    document.getElementById('dailyTP').textContent = dailyStats.tp || 0;
-    document.getElementById('dailySL').textContent = dailyStats.sl || 0;
-    document.getElementById('dailyBE').textContent = dailyStats.be || 0;
-    document.getElementById('dailyCompletedTrades').textContent = dailyStats.completedTrades || 0;
+    document.getElementById('totalTrades').textContent = stats.totalTrades;
+    document.getElementById('winRate').textContent = `${stats.winRate}%`;
+    document.getElementById('totalProfit').textContent = stats.totalProfit;
+    document.getElementById('avgProfit').textContent = stats.avgProfit;
+    
+    document.getElementById('dailyTotalTrades').textContent = dailyStats.totalTrades;
+    document.getElementById('dailyWinRate').textContent = `${dailyStats.winRate}%`;
+    document.getElementById('dailyProfit').textContent = dailyStats.totalProfit;
+    document.getElementById('dailyAvgProfit').textContent = dailyStats.avgProfit;
+    document.getElementById('dailyTP').textContent = dailyStats.tp;
+    document.getElementById('dailySL').textContent = dailyStats.sl;
+    document.getElementById('dailyBE').textContent = dailyStats.be;
     
     updateChart(trades);
 }
