@@ -83,6 +83,7 @@
         </div>
         
 <!-- Dzienne statystyki -->
+<!-- Dzienne statystyki -->
 <div class="bg-white rounded-lg shadow-lg p-3 md:p-6 mb-4">
     <h2 class="text-xl md:text-2xl font-bold mb-3">Statystyki Dzienne</h2>
     <div class="grid grid-cols-2 stats-grid gap-2 md:gap-4">
@@ -96,31 +97,31 @@
         </div>
         <div class="p-2 md:p-4 border rounded">
             <div class="text-sm md:text-base text-gray-600">Zysk dzienny</div>
-            <div id="dailyProfit" class="text-lg md:text-2xl font-bold">0</div>
+            <div id="dailyTotalProfit" class="text-lg md:text-2xl font-bold">0</div>
         </div>
         <div class="p-2 md:p-4 border rounded">
             <div class="text-sm md:text-base text-gray-600">Średni zysk</div>
             <div id="dailyAvgProfit" class="text-lg md:text-2xl font-bold">0</div>
         </div>
-       <div class="p-2 md:p-4 border rounded">
+        <div class="p-2 md:p-4 border rounded">
             <div class="text-sm md:text-base text-gray-600">Liczba zysków</div>
-            <div id="dailyProfits" class="text-lg md:text-2xl font-bold">0</div>
+            <div id="dailyProfitsCount" class="text-lg md:text-2xl font-bold">0</div>
         </div>
         <div class="p-2 md:p-4 border rounded">
             <div class="text-sm md:text-base text-gray-600">Liczba strat</div>
-            <div id="dailyLosses" class="text-lg md:text-2xl font-bold">0</div>
+            <div id="dailyLossesCount" class="text-lg md:text-2xl font-bold">0</div>
         </div>
         <div class="p-2 md:p-4 border rounded">
             <div class="text-sm md:text-base text-gray-600">Liczba TP</div>
-            <div id="dailyTP" class="text-lg md:text-2xl font-bold">0</div>
+            <div id="dailyTPCount" class="text-lg md:text-2xl font-bold">0</div>
         </div>
         <div class="p-2 md:p-4 border rounded">
             <div class="text-sm md:text-base text-gray-600">Liczba SL</div>
-            <div id="dailySL" class="text-lg md:text-2xl font-bold">0</div>
+            <div id="dailySLCount" class="text-lg md:text-2xl font-bold">0</div>
         </div>
         <div class="p-2 md:p-4 border rounded">
             <div class="text-sm md:text-base text-gray-600">Break Even (SL+)</div>
-            <div id="dailyBE" class="text-lg md:text-2xl font-bold">0</div>
+            <div id="dailyBECount" class="text-lg md:text-2xl font-bold">0</div>
         </div>
     </div>
 </div>
@@ -275,7 +276,7 @@ window.addEventListener('message', async function(event) {
         
         // Odświeżamy widok
         renderTrades();
-        updateStats();
+        ();
     }
 });
         
