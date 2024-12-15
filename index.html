@@ -12,16 +12,16 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js" crossorigin="anonymous"></script>
     <style>
         .table-responsive {
-            max-height: 400px;
-            overflow-y: auto;
-        }
+    max-height: 400px;
+    overflow-y: auto;
+}
 
-        #tradesBody {
-            max-height: 400px;
-            overflow-y: auto;
-        }
+#tradesBody {
+    max-height: 400px;
+    overflow-y: auto;
+}
 
-        @media (max-width: 768px) {
+@media (max-width: 768px) {
             .table-responsive {
                 display: block;
                 width: 100%;
@@ -44,17 +44,20 @@
         <!-- Panel nawigacyjny -->
         <div class="bg-white rounded-lg shadow-lg p-3 md:p-6 mb-4 flex justify-between items-center">
             <h1 class="text-2xl md:text-3xl font-bold">Dziennik Tradera</h1>
+           
             
             <button onclick="window.location.href='stats.html'" 
                     class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
                 Szczegółowe Statystyki
             </button>
             
+            
             <button onclick="window.location.href='daily-stats.html'" 
                     class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mx-2">
                 Dzienne statystyki
             </button>
         </div>
+
 
         <!-- Podstawowe statystyki -->
         <div class="bg-white rounded-lg shadow-lg p-3 md:p-6 mb-4">
@@ -79,48 +82,48 @@
             </div>
         </div>
         
-        <!-- Dzienne statystyki -->
-        <div class="bg-white rounded-lg shadow-lg p-3 md:p-6 mb-4">
-            <h2 class="text-xl md:text-2xl font-bold mb-3">Statystyki Dzienne</h2>
-            <div class="grid grid-cols-2 stats-grid gap-2 md:gap-4">
-                <div class="p-2 md:p-4 border rounded">
-                    <div class="text-sm md:text-base text-gray-600">Liczba tradów</div>
-                    <div id="dailyTotalTrades" class="text-lg md:text-2xl font-bold">0</div>
-                </div>
-                <div class="p-2 md:p-4 border rounded">
-                    <div class="text-sm md:text-base text-gray-600">Win Rate</div>
-                    <div id="dailyWinRate" class="text-lg md:text-2xl font-bold">0%</div>
-                </div>
-                <div class="p-2 md:p-4 border rounded">
-                    <div class="text-sm md:text-base text-gray-600">Zysk dzienny</div>
-                    <div id="dailyProfit" class="text-lg md:text-2xl font-bold">0</div>
-                </div>
-                <div class="p-2 md:p-4 border rounded">
-                    <div class="text-sm md:text-base text-gray-600">Średni zysk</div>
-                    <div id="dailyAvgProfit" class="text-lg md:text-2xl font-bold">0</div>
-                </div>
-                <div class="p-2 md:p-4 border rounded">
-                    <div class="text-sm md:text-base text-gray-600">Liczba zysków</div>
-                    <div id="dailyProfits" class="text-lg md:text-2xl font-bold">0</div>
-                </div>
-                <div class="p-2 md:p-4 border rounded">
-                    <div class="text-sm md:text-base text-gray-600">Liczba strat</div>
-                    <div id="dailyLosses" class="text-lg md:text-2xl font-bold">0</div>
-                </div>
-                <div class="p-2 md:p-4 border rounded">
-                    <div class="text-sm md:text-base text-gray-600">Liczba TP</div>
-                    <div id="dailyTP" class="text-lg md:text-2xl font-bold">0</div>
-                </div>
-                <div class="p-2 md:p-4 border rounded">
-                    <div class="text-sm md:text-base text-gray-600">Liczba SL</div>
-                    <div id="dailySL" class="text-lg md:text-2xl font-bold">0</div>
-                </div>
-                <div class="p-2 md:p-4 border rounded">
-                    <div class="text-sm md:text-base text-gray-600">Break Even (SL+)</div>
-                    <div id="dailyBE" class="text-lg md:text-2xl font-bold">0</div>
-                </div>
-            </div>
+<!-- Dzienne statystyki -->
+<div class="bg-white rounded-lg shadow-lg p-3 md:p-6 mb-4">
+    <h2 class="text-xl md:text-2xl font-bold mb-3">Statystyki Dzienne</h2>
+    <div class="grid grid-cols-2 stats-grid gap-2 md:gap-4">
+        <div class="p-2 md:p-4 border rounded">
+            <div class="text-sm md:text-base text-gray-600">Liczba tradów</div>
+            <div id="dailyTotalTrades" class="text-lg md:text-2xl font-bold">0</div>
         </div>
+        <div class="p-2 md:p-4 border rounded">
+            <div class="text-sm md:text-base text-gray-600">Win Rate</div>
+            <div id="dailyWinRate" class="text-lg md:text-2xl font-bold">0%</div>
+        </div>
+        <div class="p-2 md:p-4 border rounded">
+            <div class="text-sm md:text-base text-gray-600">Zysk dzienny</div>
+            <div id="dailyProfit" class="text-lg md:text-2xl font-bold">0</div>
+        </div>
+        <div class="p-2 md:p-4 border rounded">
+            <div class="text-sm md:text-base text-gray-600">Średni zysk</div>
+            <div id="dailyAvgProfit" class="text-lg md:text-2xl font-bold">0</div>
+        </div>
+       <div class="p-2 md:p-4 border rounded">
+            <div class="text-sm md:text-base text-gray-600">Liczba zysków</div>
+            <div id="dailyProfits" class="text-lg md:text-2xl font-bold">0</div>
+        </div>
+        <div class="p-2 md:p-4 border rounded">
+            <div class="text-sm md:text-base text-gray-600">Liczba strat</div>
+            <div id="dailyLosses" class="text-lg md:text-2xl font-bold">0</div>
+        </div>
+        <div class="p-2 md:p-4 border rounded">
+            <div class="text-sm md:text-base text-gray-600">Liczba TP</div>
+            <div id="dailyTP" class="text-lg md:text-2xl font-bold">0</div>
+        </div>
+        <div class="p-2 md:p-4 border rounded">
+            <div class="text-sm md:text-base text-gray-600">Liczba SL</div>
+            <div id="dailySL" class="text-lg md:text-2xl font-bold">0</div>
+        </div>
+        <div class="p-2 md:p-4 border rounded">
+            <div class="text-sm md:text-base text-gray-600">Break Even (SL+)</div>
+            <div id="dailyBE" class="text-lg md:text-2xl font-bold">0</div>
+        </div>
+    </div>
+</div>
         
         <!-- Wykres wyników -->
         <div class="bg-white rounded-lg shadow-lg p-3 md:p-6 mb-4">
@@ -147,32 +150,33 @@
                         Eksportuj do CSV
                     </button>
                     <button onclick="window.open('importDialog.html', 'ImportWindow', 'width=800,height=800')" 
-                            class="bg-blue-500 text-white px-3 py-2 rounded text-sm md:text-base hover:bg-blue-600 cursor-pointer">
-                        Importuj z brokera
+                    class="bg-blue-500 text-white px-3 py-2 rounded text-sm md:text-base hover:bg-blue-600 cursor-pointer">
+                    Importuj z brokera
                     </button>
                 </div>
             </div>
             <div class="table-responsive">
                 <table class="w-full" id="tradesTable">
-                    <thead>
-                        <tr class="border-b">
-                            <th class="p-2 text-left">Data</th>
-                            <th class="p-2 text-left">Para</th>
-                            <th class="p-2 text-left">Kierunek</th>
-                            <th class="p-2 text-right">Entry</th>
-                            <th class="p-2 text-right">TP</th>
-                            <th class="p-2 text-right">SL</th>
-                            <th class="p-2 text-right">Exit</th>
-                            <th class="p-2 text-right">Wolumen</th>
-                            <th class="p-2 text-right">Profit</th>
-                            <th class="p-2 text-center">Wynik</th>
-                            <th class="p-2 text-center">Source</th>
-                        </tr>
-                    </thead>
+                   <thead>
+    <tr class="border-b">
+        <th class="p-2 text-left">Data</th>
+        <th class="p-2 text-left">Para</th>
+        <th class="p-2 text-left">Kierunek</th>
+        <th class="p-2 text-right">Entry</th>
+        <th class="p-2 text-right">TP</th>
+        <th class="p-2 text-right">SL</th>
+        <th class="p-2 text-right">Exit</th>
+        <th class="p-2 text-right">Wolumen</th>
+        <th class="p-2 text-right">Profit</th>
+        <th class="p-2 text-center">Wynik</th>
+        <th class="p-2 text-center">Source</th>
+    </tr>
+</thead>
                     <tbody id="tradesBody"></tbody>
                 </table>
             </div>
         </div>
+    </div>
 
         <!-- Formularz dodawania trade'a -->
         <div class="bg-white rounded-lg shadow-lg p-3 md:p-6 mb-4">
@@ -239,11 +243,11 @@
                 </button>
             </form>
         </div>
-    </div>
-</body>
-</html>
 
-// Konfiguracja GitHub
+    
+    <script>
+        // Konfiguracja GitHub
+        // Zamień linijkę z GITHUB_TOKEN na:
 let GITHUB_TOKEN = localStorage.getItem('github_token');
 if (!GITHUB_TOKEN) {
     GITHUB_TOKEN = prompt('Wprowadź swój GitHub Token:');
@@ -251,87 +255,93 @@ if (!GITHUB_TOKEN) {
         localStorage.setItem('github_token', GITHUB_TOKEN);
     }
 }
-const REPO_OWNER = 'Cinek2131';
-const REPO_NAME = 'DT';
-const FILE_PATH = 'trades.json';
+        const REPO_OWNER = 'Cinek2131';
+        const REPO_NAME = 'DT';
+        const FILE_PATH = 'trades.json';
+        
+        let trades = [];
+        let chart = null;
 
-let trades = [];
-let chart = null;
-
-// Obsługa importu danych
+// kompatibilny z importem danych z pliku importDialog Dodaj to w głównym pliku index.html w sekcji skryptów
 window.addEventListener('message', async function(event) {
     if (event.data.type === 'importedTrades') {
         const newTrades = event.data.trades;
+        
+        // Łączymy nowe trade'y z istniejącymi
         trades = [...trades, ...newTrades];
+        
+        // Zapisujemy do GitHub
         await saveToGithub(trades);
+        
+        // Odświeżamy widok
         renderTrades();
         updateStats();
     }
 });
-
-// Funkcje GitHub
-async function saveToGithub(trades) {
-    try {
-        let sha = '';
-        try {
-            const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
-                headers: {
-                    'Authorization': `token ${GITHUB_TOKEN}`,
-                    'Accept': 'application/vnd.github.v3+json'
+        
+        // Funkcje GitHub
+        async function saveToGithub(trades) {
+            try {
+                let sha = '';
+                try {
+                    const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
+                        headers: {
+                            'Authorization': `token ${GITHUB_TOKEN}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    });
+                    const data = await response.json();
+                    if (!response.ok) throw new Error('File not found');
+                    sha = data.sha;
+                } catch (e) {
+                    console.log('File does not exist yet');
                 }
-            });
-            const data = await response.json();
-            if (!response.ok) throw new Error('File not found');
-            sha = data.sha;
-        } catch (e) {
-            console.log('File does not exist yet');
+
+                const content = btoa(JSON.stringify(trades, null, 2));
+
+                const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${GITHUB_TOKEN}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: 'Update trades data',
+                        content: content,
+                        sha: sha || undefined
+                    })
+                });
+
+                if (!response.ok) throw new Error('Failed to save');
+                console.log('Saved to GitHub successfully');
+            } catch (error) {
+                console.error('Error saving to GitHub:', error);
+                alert('Błąd podczas zapisywania danych. Spróbuj ponownie.');
+            }
         }
 
-        const content = btoa(JSON.stringify(trades, null, 2));
-
-        const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
-            method: 'PUT',
-            headers: {
-                'Authorization': `token ${GITHUB_TOKEN}`,
-                'Accept': 'application/vnd.github.v3+json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                message: 'Update trades data',
-                content: content,
-                sha: sha || undefined
-            })
-        });
-
-        if (!response.ok) throw new Error('Failed to save');
-        console.log('Saved to GitHub successfully');
-    } catch (error) {
-        console.error('Error saving to GitHub:', error);
-        alert('Błąd podczas zapisywania danych. Spróbuj ponownie.');
-    }
-}
-
-async function loadFromGithub() {
-    try {
-        const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
-            headers: {
-                'Authorization': `token ${GITHUB_TOKEN}`,
-                'Accept': 'application/vnd.github.v3+json'
+        async function loadFromGithub() {
+            try {
+                const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
+                    headers: {
+                        'Authorization': `token ${GITHUB_TOKEN}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+                
+                if (!response.ok) return [];
+                
+                const data = await response.json();
+                const content = atob(data.content);
+                return JSON.parse(content);
+            } catch (error) {
+                console.error('Error loading from GitHub:', error);
+                return [];
             }
-        });
-        
-        if (!response.ok) return [];
-        
-        const data = await response.json();
-        const content = atob(data.content);
-        return JSON.parse(content);
-    } catch (error) {
-        console.error('Error loading from GitHub:', error);
-        return [];
-    }
-}
+        }
 
-// Import danych z brokera
+        // Import danych z brokera
 async function importBrokerData(event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -344,6 +354,7 @@ async function importBrokerData(event) {
         const newTrades = rows.slice(1)
             .filter(row => row.trim())
             .map(row => {
+                // Dzielimy wiersz z uwzględnieniem wartości w cudzysłowach
                 const columns = row.split(',').map(col => col.replace(/"/g, '').trim());
                 if (columns.length < headers.length) return null;
 
@@ -352,6 +363,7 @@ async function importBrokerData(event) {
                     data[header.trim()] = columns[index];
                 });
 
+                // Sprawdzamy czy trade jest zamknięty
                 if (data.Status !== 'CLOSED') return null;
 
                 const profit = parseFloat(data['Rpl Converted'] || '0');
@@ -395,171 +407,186 @@ async function importBrokerData(event) {
     }
 }
 
-function generateImportSummary(newTrades) {
-    const total = newTrades.length;
-    const wins = newTrades.filter(t => t.result === 'win').length;
-    const losses = newTrades.filter(t => t.result === 'loss').length;
-    const totalProfit = newTrades.reduce((sum, t) => sum + parseFloat(t.profit), 0);
-    
-    return `Zaimportowano ${total} tradów\n` +
-           `Zyski: ${wins}\n` +
-           `Straty: ${losses}\n` +
-           `Łączny wynik: ${totalProfit.toFixed(2)}`;
-}
-
-// Funkcje statystyk
-function calculateStats(trades) {
-    const stats = {
-        totalTrades: trades.length,
-        winningTrades: 0,
-        losingTrades: 0,
-        totalProfit: 0,
-        avgProfit: 0,
-        winRate: 0
-    };
-
-    trades.forEach(trade => {
-        const profit = parseFloat(trade.profit);
-        stats.totalProfit += profit;
-        
-        if (profit > 0) stats.winningTrades++;
-        else if (profit < 0) stats.losingTrades++;
-    });
-
-    stats.winRate = stats.totalTrades ? 
-        ((stats.winningTrades / stats.totalTrades) * 100).toFixed(2) : 0;
-    stats.totalProfit = stats.totalProfit.toFixed(2);
-    stats.avgProfit = stats.totalTrades ? 
-        (stats.totalProfit / stats.totalTrades).toFixed(2) : 0;
-
-    return stats;
-}
-
+        function generateImportSummary(newTrades) {
+            const total = newTrades.length;
+            const wins = newTrades.filter(t => t.result === 'win').length;
+            const losses = newTrades.filter(t => t.result === 'loss').length;
+            const totalProfit = newTrades.reduce((sum, t) => sum + parseFloat(t.profit), 0);
+            
+            return `Zaimportowano ${total} tradów\n` +
+                   `Zyski: ${wins}\n` +
+                   `Straty: ${losses}\n` +
+                   `Łączny wynik: ${totalProfit.toFixed(2)}`;
+        }
+// Przelicanie statystyk dziennych//
 function calculateDailyStats(trades) {
     const today = new Date().toDateString();
     const dailyTrades = trades.filter(trade => 
         new Date(trade.date).toDateString() === today
     );
 
-    const dailyStats = {
-        dailyTotalTrades: dailyTrades.length,
-        dailyProfitsCount: 0,
-        dailyLossesCount: 0,
-        dailyTotalProfit: 0,
-        dailyAvgProfit: 0,
-        dailyWinRate: 0,
-        dailyTPCount: 0,
-        dailySLCount: 0,
-        dailyBECount: 0
+    const stats = {
+        totalTrades: dailyTrades.length,
+        profits: 0,    // liczba zyskownych tradów
+        losses: 0,     // liczba stratnych tradów
+        totalProfit: 0,
+        avgProfit: 0,
+        winRate: 0,
+        tp: 0,         // liczba TP
+        sl: 0,         // liczba SL
+        be: 0          // liczba BE
     };
 
     dailyTrades.forEach(trade => {
         const profit = parseFloat(trade.profit);
-        dailyStats.dailyTotalProfit += profit;
+        stats.totalProfit += profit;
         
+        // Liczenie zysków/strat bazując na wyniku finansowym
         if (profit > 0) {
-            dailyStats.dailyProfitsCount++;
+            stats.profits++;
         } else if (profit < 0) {
-            dailyStats.dailyLossesCount++;
+            stats.losses++;
         }
 
+        // Liczenie TP/SL/BE
         if (trade.exit === trade.takeProfit) {
-            dailyStats.dailyTPCount++;
+            stats.tp++;
         } else if (trade.exit === trade.stopLoss) {
             if (profit > 0) {
-                dailyStats.dailyBECount++;
+                stats.be++; // Break Even - zamknięte przez SL ale z zyskiem
             } else {
-                dailyStats.dailySLCount++;
+                stats.sl++; // Standardowy Stop Loss ze stratą
             }
         }
     });
 
-    dailyStats.dailyWinRate = dailyStats.dailyTotalTrades ? 
-        ((dailyStats.dailyProfitsCount / dailyStats.dailyTotalTrades) * 100).toFixed(2) : 0;
-    dailyStats.dailyTotalProfit = dailyStats.dailyTotalProfit.toFixed(2);
-    dailyStats.dailyAvgProfit = dailyStats.dailyTotalTrades ? 
-        (dailyStats.dailyTotalProfit / dailyStats.dailyTotalTrades).toFixed(2) : 0;
+    stats.winRate = stats.totalTrades ? 
+        ((stats.profits / stats.totalTrades) * 100).toFixed(2) : 0;
+    stats.totalProfit = stats.totalProfit.toFixed(2);
+    stats.avgProfit = stats.totalTrades ? 
+        (stats.totalProfit / stats.totalTrades).toFixed(2) : 0;
 
-    return dailyStats;
+    return stats;
 }
-
-function updateStats() {
+        
+        // Funkcje statystyk i wykresów
+        function updateStats() {
     const stats = calculateStats(trades);
     const dailyStats = calculateDailyStats(trades);
     
-    // Debugging
-    console.log('Wszystkie trades:', trades);
-    console.log('Ogólne statystyki:', stats);
-    console.log('Dzienne statystyki:', dailyStats);
-    
-    // Ogólne statystyki
     document.getElementById('totalTrades').textContent = stats.totalTrades;
     document.getElementById('winRate').textContent = `${stats.winRate}%`;
     document.getElementById('totalProfit').textContent = stats.totalProfit;
     document.getElementById('avgProfit').textContent = stats.avgProfit;
     
-    // Dzienne statystyki
-    document.getElementById('dailyTotalTrades').textContent = dailyStats.dailyTotalTrades;
-    document.getElementById('dailyWinRate').textContent = `${dailyStats.dailyWinRate}%`;
-    document.getElementById('dailyProfit').textContent = dailyStats.dailyTotalProfit;
-    document.getElementById('dailyAvgProfit').textContent = dailyStats.dailyAvgProfit;
-    document.getElementById('dailyProfits').textContent = dailyStats.dailyProfitsCount;
-    document.getElementById('dailyLosses').textContent = dailyStats.dailyLossesCount;
-    document.getElementById('dailyTP').textContent = dailyStats.dailyTPCount;
-    document.getElementById('dailySL').textContent = dailyStats.dailySLCount;
-    document.getElementById('dailyBE').textContent = dailyStats.dailyBECount;
+    document.getElementById('dailyTotalTrades').textContent = dailyStats.totalTrades;
+    document.getElementById('dailyWinRate').textContent = `${dailyStats.winRate}%`;
+    document.getElementById('dailyProfit').textContent = dailyStats.totalProfit;
+    document.getElementById('dailyAvgProfit').textContent = dailyStats.avgProfit;
+    document.getElementById('dailyTP').textContent = dailyStats.tp;
+    document.getElementById('dailySL').textContent = dailyStats.sl;
+    document.getElementById('dailyBE').textContent = dailyStats.be;
     
     updateChart(trades);
 }
 
-// Funkcje obsługi wykresu
-function updateChart(trades) {
-    const ctx = document.getElementById('profitChart').getContext('2d');
-    
-    const cumulativeProfit = trades.reduce((acc, trade) => {
-        const lastProfit = acc.length > 0 ? acc[acc.length - 1] : 0;
-        acc.push(lastProfit + parseFloat(trade.profit));
-        return acc;
-    }, []);
+        function calculateStats(trades) {
+            const stats = {
+                totalTrades: trades.length,
+                winningTrades: 0,
+                losingTrades: 0,
+                totalProfit: 0,
+                avgProfit: 0,
+                winRate: 0
+            };
 
-    if (chart) {
-        chart.destroy();
-    }
+            trades.forEach(trade => {
+                const profit = parseFloat(trade.profit);
+                stats.totalProfit += profit;
+                
+                if (profit > 0) stats.winningTrades++;
+                else if (profit < 0) stats.losingTrades++;
+            });
 
-    chart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: trades.map((_, index) => `Trade ${index + 1}`),
-            datasets: [{
-                label: 'Skumulowany zysk',
-                data: cumulativeProfit,
-                borderColor: 'rgb(75, 192, 192)',
-                tension: 0.1
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                title: {
-                    display: true,
-                    text: 'Krzywa kapitału'
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
+            stats.winRate = stats.totalTrades ? 
+                ((stats.winningTrades / stats.totalTrades) * 100).toFixed(2) : 0;
+            stats.totalProfit = stats.totalProfit.toFixed(2);
+            stats.avgProfit = stats.totalTrades ? 
+                (stats.totalProfit / stats.totalTrades).toFixed(2) : 0;
+
+            return stats;
         }
-    });
-}
 
-// Renderowanie tabeli tradów
+        function updateChart(trades) {
+            const ctx = document.getElementById('profitChart').getContext('2d');
+            
+            const cumulativeProfit = trades.reduce((acc, trade) => {
+                const lastProfit = acc.length > 0 ? acc[acc.length - 1] : 0;
+                acc.push(lastProfit + parseFloat(trade.profit));
+                return acc;
+            }, []);
+
+            if (chart) {
+                chart.destroy();
+            }
+
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: trades.map((_, index) => `Trade ${index + 1}`),
+                    datasets: [{
+                        label: 'Skumulowany zysk',
+                        data: cumulativeProfit,
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Krzywa kapitału'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Obsługa formularza
+        async function addTrade(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const trade = Object.fromEntries(formData.entries());
+            
+            const profit = (parseFloat(trade.exit) - parseFloat(trade.entry)) * 
+                          (trade.direction === 'long' ? 1 : -1) * 
+                          parseFloat(trade.volume);
+            
+            trade.profit = profit.toFixed(2);
+            trade.id = Date.now();
+            trade.timestamp = new Date().toISOString();
+
+            trades.push(trade);
+            await saveToGithub(trades);
+            
+            renderTrades();
+            updateStats();
+            event.target.reset();
+        }
+
+        // Renderowanie tabeli
 function renderTrades() {
     const tbody = document.getElementById('tradesBody');
     const sortedTrades = [...trades].sort((a, b) => new Date(b.date) - new Date(a.date));
     
     tbody.innerHTML = sortedTrades.map(trade => {
+        // Określenie źródła zamknięcia pozycji
         let source = 'USER';
         if (trade.exit === trade.takeProfit) {
             source = 'TP';
@@ -567,6 +594,7 @@ function renderTrades() {
             source = 'SL';
         }
         
+        // Style dla wartości TP/SL
         const tpStyle = source === 'TP' ? 'background-color: #d1fae5; font-weight: bold;' : '';
         const slStyle = source === 'SL' ? 'background-color: #fee2e2; font-weight: bold;' : '';
         
@@ -589,94 +617,44 @@ function renderTrades() {
     `}).join('');
 }
 
-// Dodawanie nowego trade'a
-async function addTrade(event) {
-    event.preventDefault();
-    const formData = new FormData(event.target);
-    const trade = Object.fromEntries(formData.entries());
-    
-    const profit = (parseFloat(trade.exit) - parseFloat(trade.entry)) * 
-                  (trade.direction === 'long' ? 1 : -1) * 
-                  parseFloat(trade.volume);
-    
-    trade.profit = profit.toFixed(2);
-    trade.id = Date.now();
-    trade.timestamp = new Date().toISOString();
+        // Export do CSV
+        function exportToCSV() {
+            const headers = ['Data', 'Para', 'Kierunek', 'Wejście', 'Wyjście', 
+                           'Wolumen', 'Profit', 'Setup', 'Wynik', 'Notatki'];
+            
+            const data = trades.map(trade => [
+                trade.date,
+                trade.pair,
+                trade.direction,
+                trade.entry,
+                trade.exit,
+                trade.volume,
+                trade.profit,
+                trade.setup,
+                trade.result,
+                trade.notes
+            ]);
 
-    trades.push(trade);
-    await saveToGithub(trades);
-    
-    renderTrades();
-    updateStats();
-    event.target.reset();
-}
+            const csvContent = [
+                headers.join(','),
+                ...data.map(row => row.join(','))
+            ].join('\n');
 
-// Export do CSV
-function exportToCSV() {
-    const headers = ['Data', 'Para', 'Kierunek', 'Wejście', 'Wyjście', 
-                   'Wolumen', 'Profit', 'Setup', 'Wynik', 'Notatki'];
-    
-    const data = trades.map(trade => [
-            // Kontynuacja funkcji exportToCSV() i reszta kodu:
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `trading_journal_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+        }
 
-    const data = trades.map(trade => [
-        trade.date,
-        trade.pair,
-        trade.direction,
-        trade.entry,
-        trade.exit,
-        trade.volume,
-        trade.profit,
-        trade.setup,
-        trade.result,
-        trade.notes
-    ]);
+        // Inicjalizacja
+        window.addEventListener('DOMContentLoaded', async () => {
+            trades = await loadFromGithub();
+            renderTrades();
+            updateStats();
+        });
 
-    const csvContent = [
-        headers.join(','),
-        ...data.map(row => row.join(','))
-    ].join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `trading_journal_${new Date().toISOString().split('T')[0]}.csv`;
-    link.click();
-}
-
-// Inicjalizacja aplikacji
-window.addEventListener('DOMContentLoaded', async () => {
-    trades = await loadFromGithub();
-    renderTrades();
-    updateStats();
-});
-
-// Obsługa formularza
-document.getElementById('tradeForm').addEventListener('submit', addTrade);
-
-// Obsługa zdarzenia importu
-document.getElementById('brokerDataInput').addEventListener('change', importBrokerData);
-
-// Nasłuchiwanie na wiadomości z okna importu
-window.addEventListener('message', async function(event) {
-    if (event.data.type === 'importedTrades') {
-        const newTrades = event.data.trades;
-        trades = [...trades, ...newTrades];
-        await saveToGithub(trades);
-        renderTrades();
-        updateStats();
-    }
-});
-
-// Obsługa błędów
-window.addEventListener('error', function(event) {
-    console.error('Błąd aplikacji:', event.error);
-    alert('Wystąpił błąd w aplikacji. Sprawdź konsolę developerską po więcej szczegółów.');
-});
-
-// Nasłuchiwanie na zmiany w lokalnym storage
-window.addEventListener('storage', function(event) {
-    if (event.key === 'github_token') {
-        GITHUB_TOKEN = event.newValue;
-    }
-});
+        document.getElementById('tradeForm').addEventListener('submit', addTrade);
+    </script>
+</body>
+</html>
